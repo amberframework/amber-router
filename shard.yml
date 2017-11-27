@@ -1,0 +1,19 @@
+name: amber_router
+version: 0.1.0
+
+authors:
+  - Robert L Carpenter <robert@robacarp.com>
+
+crystal: 0.23.1
+
+license: MIT
+
+targets:
+  benchmark:
+    main: src/benchmark.cr
+
+dependencies:
+  radix:
+    github: luislavena/radix
+    version: ~> 0.3.8
+
