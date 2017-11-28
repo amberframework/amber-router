@@ -70,6 +70,34 @@ module Amber::Router
       end
     end
 
+    # Add a route to the tree.
+    def add(path, route : T) : Nil
+      segments = split_path path
+      add(segments, route, path)
+    end
+
+    # Recursively find or create subtrees matching a given path, and store the
+    # application route at the leaf.
+    protected def add(segments : Array(String), route : T, full_path : String) : Nil
+      if segments.empty?
+        if @route.nil?
+          @route = route
+          @full_path = full_path
+          return
+        else
+          raise "Unable to store route: #{full_path}, route is already defined as #{@full_path}"
+        end
+      end
+
+      first_segment = segments.shift
+      subtree = find_subtree! first_segment
+      subtree.add(segments, route, full_path)
+    end
+
+
+
+
+
     def segment_match?(segment : String) : Bool
       segment == @segment
     end
@@ -124,18 +152,20 @@ module Amber::Router
     # A destructive breadth first search.
     #
     # return true if any routes matched.
-    def select_routes!(path : Array(String)?) : Bool
+    def select_routes!(path : Array(String)?, startpos = 0) : Bool
       if path.nil? || path.empty?
         return false
       end
 
-      first_segment = path.shift
+      can_recurse = root? || startpos <= path.size - 2
+
+      first_segment = path[startpos]
       reverse_match = false
 
       case
       when root?
-        # select all branches that match the full path
-        path.unshift first_segment
+        # check all branches against the full path
+        startpos = -1
       when fixed?
         # select branches only if this segment matches
         unless segment_match? first_segment
@@ -148,15 +178,19 @@ module Amber::Router
       end
 
       if reverse_match
-        match, _ = reverse_select_routes! path
+        match, _ = reverse_select_routes! path, startpos
         return match
       else
-        @branches.select! do |subtree|
-          subtree.select_routes! path.clone
+        if can_recurse
+          @branches.select! do |subtree|
+            subtree.select_routes! path, startpos + 1
+          end
+        else
+          @branches = [] of RouteSet(T)
         end
       end
 
-      @branches.any? || (leaf? && path.empty?)
+      @branches.any? || (routable? && ! can_recurse)
     end
 
     # Recursively matches the right hand side of a glob segment.
@@ -169,32 +203,26 @@ module Amber::Router
     #
     #   Tuple(subtree_match : Bool, path_for_trunk_to_match : String)
     #
-    def reverse_select_routes!(path : Array(String)) : Tuple(Bool, Array(String))
-      remaining_path = [] of String
+    def reverse_select_routes!(path : Array(String), startpos, endpos = nil)
+      if endpos.nil?
+        endpos = path.size - 1
+      end
+
       was_leaf = leaf?
 
       @branches.select! do |subtree|
-        match, modified_path = subtree.reverse_select_routes! path
-        if match
-
-          unless remaining_path.empty?
-            raise "warning: overwriting remnant path"
-          end
-
-          remaining_path = modified_path
-        end
+        match, modified_position = subtree.reverse_select_routes! path, startpos, endpos
+        endpos = modified_position if match
+        match
       end
 
-      # If this segment started as a leaf, no remant path exists. Match against the whole path.
-      remaining_path = path if was_leaf
-
       # If this wasn't a leaf and there are no branches left, it's not a match.
-      return {false, [] of String} unless @branches.any? || was_leaf
+      return {false, endpos} unless @branches.any? || was_leaf
 
       # If this node is the glob, at least one subtree matched (or there are none).
-      return {true, [] of String} if glob?
+      return {true, endpos} if glob?
 
-      last_segment = remaining_path.pop
+      last_segment = path[endpos]
 
       matched = case
       when fixed?
@@ -205,36 +233,12 @@ module Amber::Router
         false
       end
 
-      {matched, path.clone}
-    end
-
-    # Add a route to the tree.
-    def add(path, route : T) : Nil
-      segments = split_path path
-      add(segments, route, path)
-    end
-
-    # Recursively find or create subtrees matching a given path, and store the
-    # application route at the leaf.
-    protected def add(segments : Array(String), route : T, full_path : String) : Nil
-      if segments.empty?
-        if @route.nil?
-          @route = route
-          @full_path = full_path
-          return
-        else
-          raise "Unable to store route: #{full_path}, route is already defined as #{@full_path}"
-        end
-      end
-
-      first_segment = segments.shift
-      subtree = find_subtree! first_segment
-      subtree.add(segments, route, full_path)
+      {matched, endpos - 1}
     end
 
     # Find a route which has been assigned to a matching path
     # Weakness: assumes only one route will match the path query.
-    def find(path) : RouteSet(T)
+    def find(path) : RoutedResult(T)
       matches = deep_clone
       segments = split_path path
 
@@ -242,9 +246,7 @@ module Amber::Router
 
       if matches.size > 1
         puts "Warning: matched multiple routes for #{path}"
-        p matches
       end
-      return matches
 
       RoutedResult(T).new matches.route
     end
