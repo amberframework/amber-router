@@ -22,8 +22,12 @@ module Amber::Router
       end
     end
 
-    def match?(segment)
+    def match?(segment : String) : Bool
       @segment == segment
+    end
+
+    def to_s(i : IO)
+      i << segment
     end
   end
 end

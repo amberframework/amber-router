@@ -10,5 +10,9 @@ module Amber::Router
       "#{"  " * ts}|--(#{full_path})\n"
     end
 
+    def to_s(i : IO)
+      i << "(terminal: #{full_path})"
+    end
+
   end
 end

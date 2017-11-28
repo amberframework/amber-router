@@ -17,6 +17,10 @@ module Amber::Router
       @segments = Array(Segment(T) | TerminalSegment(T)).new
     end
 
+    # disable puts for performance testing
+    macro puts(s)
+    end
+
     # Look for or create a subtree matching a given segment.
     def find_subtree!(segment : String) : Segment(T)
       if subtree = find_subtree segment
@@ -72,38 +76,6 @@ module Amber::Router
       segment.route_set.add(url_segments, route, full_path)
     end
 
-
-
-
-
-    def segment_match?(segment : String) : Bool
-      segment == @segment
-    end
-
-    def root? : Bool
-      @segment_type == ROOT
-    end
-
-    def fixed? : Bool
-      @segment_type == FIXED
-    end
-
-    def variable? : Bool
-      @segment_type == VARIABLE
-    end
-
-    def glob? : Bool
-      @segment_type == GLOB
-    end
-
-    def leaf? : Bool
-      @branches.size == 0
-    end
-
-    def routable? : Bool
-      @route != nil
-    end
-
     def routes? : Bool
       @segments.any?
     end
@@ -124,51 +96,41 @@ module Amber::Router
       @branches.first.route
     end
 
-    # Recursively _prunes_ the route tree by matching segments
-    # against path segment strings.
-    #
-    # A destructive breadth first search.
-    #
-    # return true if any routes matched.
-    def select_routes!(path : Array(String)?, startpos = 0) : Bool
-      if path.nil? || path.empty?
-        return false
-      end
+    def select_routes(path : Array(String), startpos = 0) : Array(T)
+      tab = "   " * startpos
 
-      can_recurse = root? || startpos <= path.size - 2
+      puts "#{tab} startpos: #{startpos} path size: #{path.size}"
 
-      first_segment = path[startpos]
-      reverse_match = false
+      accepting_terminal_segments = startpos == path.size
+      can_recurse = startpos <= path.size - 1
 
-      case
-      when root?
-        # check all branches against the full path
-        startpos = -1
-      when fixed?
-        # select branches only if this segment matches
-        unless segment_match? first_segment
-          return false
-        end
-      when variable?
-        # always match
-      when glob?
-        reverse_match = true
-      end
+      puts "#{tab} terminal?: #{accepting_terminal_segments}"
+      puts "#{tab} searching #{path}, options: #{@segments.map(&.to_s).join(", ")}"
 
-      if reverse_match
-        match, _ = reverse_select_routes! path, startpos
-        return match
-      else
-        if can_recurse
-          @branches.select! do |subtree|
-            subtree.select_routes! path, startpos + 1
+      matches = [] of T
+
+      @segments.each do |segment|
+        puts "#{tab} checking #{segment.to_s}"
+        case segment
+        when TerminalSegment
+          if accepting_terminal_segments
+            puts "#{tab}\033[32m saving match!\033[0m"
+            matches << segment.route
           end
-        else
-          @branches = [] of RouteSet(T)
+        when Segment
+          next unless can_recurse
+          next unless segment.match? path[startpos]
+
+          matched_routes = segment.route_set.select_routes(path, startpos + 1)
+          matched_routes.each do |matched_route|
+            matches << matched_route
+          end
         end
       end
 
-      @branches.any? || (routable? && ! can_recurse)
+      puts "#{tab} finished checking #{@segments.map(&.to_s).join(", ")}"
+
+      matches
     end
 
     # Recursively matches the right hand side of a glob segment.
@@ -181,7 +143,7 @@ module Amber::Router
     #
     #   Tuple(subtree_match : Bool, path_for_trunk_to_match : String)
     #
-    def reverse_select_routes!(path : Array(String), startpos, endpos = nil)
+    def reverse_select_routes(path : Array(String), startpos, endpos = nil)
       if endpos.nil?
         endpos = path.size - 1
       end
@@ -189,7 +151,7 @@ module Amber::Router
       was_leaf = leaf?
 
       @branches.select! do |subtree|
-        match, modified_position = subtree.reverse_select_routes! path, startpos, endpos
+        match, modified_position = subtree.reverse_select_routes path, startpos, endpos
         endpos = modified_position if match
         match
       end
@@ -217,16 +179,20 @@ module Amber::Router
     # Find a route which has been assigned to a matching path
     # Weakness: assumes only one route will match the path query.
     def find(path) : RoutedResult(T)
-      matches = deep_clone
+      puts "starting search for #{path}:"
       segments = split_path path
-
-      matches.select_routes!(segments)
+      matches = select_routes(segments)
 
       if matches.size > 1
         puts "Warning: matched multiple routes for #{path}"
+        RoutedResult(T).new matches.first
+      elsif matches.size == 0
+        puts "Warning: matched zero routes."
+        RoutedResult(T).new nil
+      else
+        puts "Should render a route"
+        RoutedResult(T).new matches.first
       end
-
-      RoutedResult(T).new matches.route
     end
 
     # Produces a readable indented rendering of the tree, though
