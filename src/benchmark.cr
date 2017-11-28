@@ -19,7 +19,9 @@ class Benchmarker
       "/get/books/:id/authors"  => :book_authors,
       "/get/books/:id/pictures" => :book_pictures,
       "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z" => :alphabet,
-      "/get/var/:b/:c/:d/:e/:f/:g/:h/:i/:j/:k/:l/:m/:n/:o/:p/:q/:r/:s/:t/:u/:v/:w/:x/:y/:z" => :variable_alphabet
+      "/get/var/:b/:c/:d/:e/:f/:g/:h/:i/:j/:k/:l/:m/:n/:o/:p/:q/:r/:s/:t/:u/:v/:w/:x/:y/:z" => :variable_alphabet,
+      "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/:id"   => :foobar_bat,
+      "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbom/:id"   => :foobar_bom
     }
 
     @amber_router = Amber::Router::RouteSet(Symbol).new
@@ -64,6 +66,7 @@ class Benchmarker
     compare "wrong", "/get/books/23/pages", nil
     compare "many segments", "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z", :alphabet
     compare "many variables", "/get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6", :variable_alphabet
+    compare "long_segments", "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3", :foobar_bat
   end
 end
 

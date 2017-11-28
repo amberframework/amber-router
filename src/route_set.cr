@@ -259,29 +259,13 @@ module Amber::Router
       end
     end
 
-    # Split a path by slashes, and return the first segment and the rest untouched.
-    #
-    # E.g. split_path("/a/b/c/d") => "a", "b/c/d"
+    # Split a path by slashes, remove blanks, and compact the path array.
+    # E.g. split_path("/a/b/c/d") => ["a", "b", "c", "d"]
     private def split_path(path : String) : Array(String)
       path.split("/").map do |segment|
         next nil if segment.blank?
         segment
       end.compact
-    end
-
-    # Split a path by slashes, and return the last segment and the rest untouched.
-    #
-    # E.g. split_path("/a/b/c/d") => "a/b/c", "d"
-    private def reverse_split_path(path : String) : Tuple(String, String)
-      last_segment = path.split("/").last
-
-      if path.size >= last_segment.size + 1
-        remaining_path = path[0...last_segment.size * -1 - 1]
-      else
-        remaining_path = ""
-      end
-
-      Tuple(String, String).new(remaining_path, last_segment)
     end
 
   end
