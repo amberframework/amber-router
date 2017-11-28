@@ -94,6 +94,10 @@ module Amber::Router
       @branches.size == 0
     end
 
+    def routable? : Bool
+      @route != nil
+    end
+
     def routes? : Bool
       @branches.any?
     end
@@ -247,14 +251,19 @@ module Amber::Router
     # Produces a readable indented rendering of the tree, though
     # not really compatible with the other components of a deep object inspection
     def inspect(*, ts = 0)
-      tab = "  " * ts
-      @branches.reduce("#{@segment} :\n") do |s, subtree|
-        if subtree.routes?
-          s += "#{tab}- #{subtree.inspect(ts: ts + 1)}"
-        else
-          s += "#{tab}- #{subtree.segment} (#{subtree.full_path})\n"
-        end
 
+      title = "  " * ts
+
+      unless root?
+        title += "|-"
+      end
+
+      title += @segment
+      title += " (#{full_path})" if routable?
+      title += "\n"
+
+      @branches.reduce(title) do |s, subtree|
+        s += subtree.inspect(ts: ts + 1)
         s
       end
     end
