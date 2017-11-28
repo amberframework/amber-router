@@ -234,7 +234,7 @@ module Amber::Router
 
     # Find a route which has been assigned to a matching path
     # Weakness: assumes only one route will match the path query.
-    def find(path) : RoutedResult
+    def find(path) : RouteSet(T)
       matches = deep_clone
       segments = split_path path
 
@@ -244,6 +244,7 @@ module Amber::Router
         puts "Warning: matched multiple routes for #{path}"
         p matches
       end
+      return matches
 
       RoutedResult(T).new matches.route
     end
