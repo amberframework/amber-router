@@ -88,4 +88,17 @@ describe Amber::Router::RouteSet do
     router.find("/get/products/fancy_hairdoo/with_name").payload.should eq :products_slug_with_name
   end
 
+  it "handles partially shared keys" do
+    # from https://github.com/luislavena/radix/blob/master/spec/radix/tree_spec.cr#L536
+    # tree = Tree(Symbol).new
+    # tree.add "/orders/:id", :specific_order
+    # tree.add "/orders/closed", :closed_orders
+
+    # result = tree.find("/orders/10")
+    # result.found?.should be_true
+    # result.key.should eq("/orders/:id")
+    # result.params.has_key?("id").should be_true
+    # result.params["id"].should eq("10")
+  end
+
 end
