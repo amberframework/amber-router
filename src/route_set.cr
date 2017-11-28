@@ -1,72 +1,53 @@
 require "./routed_result"
 
+require "./terminal_segment"
+require "./segment"
+require "./fixed_segment"
+require "./variable_segment"
+require "./glob_segment"
+
 module Amber::Router
   class RouteSet(T)
     @trunk : RouteSet(T)?
     @route : T?
 
-    property segment : String
-    property segment_type = 0
-    property full_path : String?
-
-    ROOT = 1
-    FIXED = 2
-    VARIABLE = 4
-    GLOB = 8
-
     # A tree data structure (recursive). The initial construction has an segment
     # of "root" and no trunk. Subtrees must pass in these details upon creation.
-    def initialize(@segment = "#", @trunk = nil)
-      @branches = Array(RouteSet(T)).new
-
-      if @trunk
-        @segment_type = FIXED
-
-        if @segment.starts_with? ':'
-          @segment_type = VARIABLE
-        end
-
-        if @segment.starts_with? '*'
-          @segment_type = GLOB
-        end
-
-      else
-        @segment_type = ROOT
-      end
-    end
-
-    def deep_clone : RouteSet(T)
-      clone = {{@type}}.allocate
-      clone.initialize_copy(self)
-      clone
-    end
-
-    protected def initialize_copy(other) : Nil
-      @route = other.@route
-      @trunk = nil
-      @segment = other.@segment
-
-      @segment_type = other.@segment_type
-      @full_path = other.@full_path
-
-      @branches = other.@branches.map { |s| s.deep_clone.as(RouteSet(T)) }
+    def initialize(@root = true)
+      @segments = Array(Segment(T) | TerminalSegment(T)).new
     end
 
     # Look for or create a subtree matching a given segment.
-    def find_subtree!(segment : String) : RouteSet(T)
+    def find_subtree!(segment : String) : Segment(T)
       if subtree = find_subtree segment
         subtree
       else
-        RouteSet(T).new(segment, self).tap do |subtree|
-          @branches.push subtree
+        case
+        when segment.starts_with? ':'
+          new_segment = VariableSegment(T).new(segment)
+        when segment.starts_with? '*'
+          new_segment = GlobSegment(T).new(segment)
+        else
+          new_segment = FixedSegment(T).new(segment)
         end
+
+        @segments.push new_segment
+        new_segment
       end
     end
 
     # Look for and return a subtree matching a given segment.
-    def find_subtree(segment : String) : RouteSet(T)?
-      @branches.each do |subtree|
-        break subtree if subtree.segment_match? segment
+    def find_subtree(url_segment : String) : Segment(T)?
+      @segments.each do |segment|
+        case segment
+        when Segment
+          break segment if segment.match? url_segment
+        when TerminalSegment
+          puts "terminal segment"
+          next
+        else
+          puts "finding subtree else oops"
+        end
       end
     end
 
@@ -78,20 +59,17 @@ module Amber::Router
 
     # Recursively find or create subtrees matching a given path, and store the
     # application route at the leaf.
-    protected def add(segments : Array(String), route : T, full_path : String) : Nil
-      if segments.empty?
-        if @route.nil?
-          @route = route
-          @full_path = full_path
-          return
-        else
-          raise "Unable to store route: #{full_path}, route is already defined as #{@full_path}"
-        end
+    protected def add(url_segments : Array(String), route : T, full_path : String) : Nil
+      puts "adding #{url_segments} (#{full_path})"
+
+      unless url_segments.any?
+        puts "terminal"
+        @segments.push TerminalSegment(T).new(route, full_path)
+        return
       end
 
-      first_segment = segments.shift
-      subtree = find_subtree! first_segment
-      subtree.add(segments, route, full_path)
+      segment = find_subtree! url_segments.shift
+      segment.route_set.add(url_segments, route, full_path)
     end
 
 
@@ -127,7 +105,7 @@ module Amber::Router
     end
 
     def routes? : Bool
-      @branches.any?
+      @segments.any?
     end
 
     # Recursively count the number of discrete paths remaining in the tree.
@@ -254,20 +232,8 @@ module Amber::Router
     # Produces a readable indented rendering of the tree, though
     # not really compatible with the other components of a deep object inspection
     def inspect(*, ts = 0)
-
-      title = "  " * ts
-
-      unless root?
-        title += "|-"
-      end
-
-      title += @segment
-      title += " (#{full_path})" if routable?
-      title += "\n"
-
-      @branches.reduce(title) do |s, subtree|
-        s += subtree.inspect(ts: ts + 1)
-        s
+      @segments.reduce("") do |s, segment|
+        s + segment.inspect(ts: ts + 1)
       end
     end
 
