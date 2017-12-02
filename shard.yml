@@ -1,5 +1,5 @@
 name: amber_router
-version: 0.1.0
+version: 0.0.1
 
 authors:
   - Robert L Carpenter <robert@robacarp.com>
@@ -12,7 +12,7 @@ targets:
   benchmark:
     main: src/benchmark.cr
 
-dependencies:
+development_dependencies:
   radix:
     github: luislavena/radix
     version: ~> 0.3.8

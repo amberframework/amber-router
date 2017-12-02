@@ -1,7 +1,6 @@
-require "radix"
-require "./route_set"
 require "benchmark"
-
+require "radix"
+require "./amber_router"
 
 class Benchmarker
   getter route_library

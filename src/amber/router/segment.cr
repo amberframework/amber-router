@@ -31,3 +31,8 @@ module Amber::Router
     end
   end
 end
+
+require "./segments/terminal_segment"
+require "./segments/fixed_segment"
+require "./segments/variable_segment"
+require "./segments/glob_segment"

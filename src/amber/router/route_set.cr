@@ -1,11 +1,3 @@
-require "./routed_result"
-
-require "./terminal_segment"
-require "./segment"
-require "./fixed_segment"
-require "./variable_segment"
-require "./glob_segment"
-
 module Amber::Router
 
   # A tree which stores and navigates routes associated with a web application.
