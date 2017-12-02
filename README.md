@@ -47,7 +47,7 @@ result.params #=> { "post_name" => "my_trip_to_kansas" }
 
 ## Performance
 
-`crystal run src/benchmark.cr --release` produces a comparison of this router and [radix](/luislavena/radix). As of now, this is the comparison:
+`crystal run src/benchmark.cr --release` produces a comparison of this router and [radix](https://github.com/luislavena/radix). As of now, this is the comparison:
 
 ```
 /get/
