@@ -22,8 +22,12 @@ module Amber::Router
       end
     end
 
-    def match?(segment : String) : Bool
-      @segment == segment
+    def match?(curious_segment : String) : Bool
+      @segment == curious_segment
+    end
+
+    def literal_match?(curious_segment : String) : Bool
+      @segment == curious_segment
     end
 
     def parametric? : Bool
@@ -31,7 +35,7 @@ module Amber::Router
     end
 
     def parameter : String
-      segment
+      @segment
     end
 
     def to_s(i : IO)

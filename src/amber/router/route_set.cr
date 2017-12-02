@@ -53,7 +53,7 @@ module Amber::Router
       @segments.each do |segment|
         case segment
         when Segment
-          break segment if segment.match? url_segment
+          break segment if segment.literal_match? url_segment
         when TerminalSegment
           next
         end

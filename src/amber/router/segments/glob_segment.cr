@@ -3,7 +3,7 @@ module Amber::Router
   #
   # In the url `/products/:23/&lowast;`, the first segment, `&lowast;` is a glob segment.
   class GlobSegment(T) < Segment(T)
-    def match?(segment : String)
+    def match?(curious_segment : String)
       true
     end
 
@@ -12,7 +12,7 @@ module Amber::Router
     end
 
     def parameter
-      segment[1..-1]
+      @segment[1..-1]
     end
   end
 end
