@@ -1,37 +1,28 @@
-# amber_router
+# Amber/Router
 
-TODO: Write a description here
-
-## Installation
-
-Add this to your application's `shard.yml`:
-
-```yaml
-dependencies:
-  amber_router:
-    github: [your-github-name]/amber_router
-```
+An experimental url router.
 
 ## Usage
 
 ```crystal
-require "amber_router"
+route_set = Amber::Router::RouteSet(Symbol).new
+route_set.add "/get/", :root
+route_set.add "/get/users/:id", :users
+route_set.add "/get/users/:id/books", :users_books
+route_set.add "/get/books/:id", :books
+route_set.add "/get/books/:id/chapters", :book_chapters
+route_set.add "/get/books/:id/authors", :book_authors
+route_set.add "/get/books/:id/pictures", :book_pictures
+route_set.add "/get/users/:id/pictures", :users_pictures
+route_set.add "/get/*/slug", :slug
+route_set.add "/get/products/*/reviews", :amazon_style
+route_set.add "/get/*", :catch_all
+
+route_set.find("/get/users/3").payload # => :users
+route_set.find("/get/users/3/books").payload # => :users_books
+route_set.find("/get/books/3").payload #=> :book
 ```
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it ( https://github.com/[your-github-name]/amber_router/fork )
-2. Create your feature branch (git checkout -b my-new-feature)
-3. Commit your changes (git commit -am 'Add some feature')
-4. Push to the branch (git push origin my-new-feature)
-5. Create a new Pull Request
-
-## Contributors
-
-- [[your-github-name]](https://github.com/[your-github-name]) Robert L Carpenter - creator, maintainer
+Contributions are welcome. Please fork the repository, commit changes on a branch, and then open a pull request.
