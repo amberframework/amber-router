@@ -7,6 +7,7 @@ require "./variable_segment"
 require "./glob_segment"
 
 module Amber::Router
+
   # A tree which stores and navigates routes associated with a web application.
   #
   # ```crystal
@@ -31,6 +32,7 @@ module Amber::Router
     # of "root" and no trunk. Subtrees must pass in these details upon creation.
     def initialize(@root = true)
       @segments = Array(Segment(T) | TerminalSegment(T)).new
+      @insert_count = 0
     end
 
     # Look for or create a subtree matching a given segment.
@@ -69,15 +71,18 @@ module Amber::Router
     # Add a route to the tree.
     def add(path, route : T) : Nil
       segments = split_path path
-      add(segments, route, path)
+      terminal_segment = add(segments, route, path)
+      terminal_segment.priority = @insert_count
+      @insert_count += 1
     end
 
     # Recursively find or create subtrees matching a given path, and store the
     # application route at the leaf.
-    protected def add(url_segments : Array(String), route : T, full_path : String) : Nil
+    protected def add(url_segments : Array(String), route : T, full_path : String) : TerminalSegment(T)
       unless url_segments.any?
-        @segments.push TerminalSegment(T).new(route, full_path)
-        return
+        segment = TerminalSegment(T).new(route, full_path)
+        @segments.push segment
+        return segment
       end
 
       segment = find_subtree! url_segments.shift
@@ -89,17 +94,16 @@ module Amber::Router
     end
 
     # Recursively search the routing tree for potential matches to a given path.
-    # TODO move segment matching and recursion into the segment classes.
-    private def select_routes(path : Array(String), startpos = 0) : Array(RoutedResult(T))
+    def select_routes(path : Array(String), startpos = 0) : Array(TerminalSegment(T))
       accepting_terminal_segments = startpos == path.size
       can_recurse = startpos <= path.size - 1
 
-      matches = [] of RoutedResult(T)
+      matches = [] of TerminalSegment(T)
 
       @segments.each do |segment|
         case segment
         when TerminalSegment
-          matches << RoutedResult(T).new(segment.route) if accepting_terminal_segments
+          matches << segment if accepting_terminal_segments
 
         when FixedSegment, VariableSegment
           next unless can_recurse
@@ -132,9 +136,9 @@ module Amber::Router
     #   { array of potential matches, position in path array : Int32)
     #
     # TODO move segment matching and recursion into Segment classes.
-    private def reverse_select_routes(path : Array(String), startpos, endpos = nil) : Tuple( Array(RoutedResult(T)), Int32 )
+    protected def reverse_select_routes(path : Array(String), startpos, endpos = nil) : Tuple(Array(TerminalSegment(T)), Int32)
       no_matches = [] of T
-      matches = [] of T
+      matches = [] of TerminalSegment(T)
 
       if endpos.nil?
         endpos = path.size - 1
@@ -143,7 +147,7 @@ module Amber::Router
       @segments.each do |segment|
         case segment
         when TerminalSegment
-          matches << segment.route
+          matches << segment
 
         when FixedSegment, VariableSegment
           new_matches, new_endpos = segment.route_set.reverse_select_routes path, startpos, endpos
@@ -163,19 +167,19 @@ module Amber::Router
     end
 
     # Find a route which is compatible with a path.
-    # TODO better sort through routes when multiple route candidates are found.
     def find(path : String) : RoutedResult(T)
       segments = split_path path
       matches = select_routes(segments)
 
-      if matches.size > 1
-        puts "Warning: matched multiple routes for #{path}"
-        RoutedResult(T).new matches.first
+      match = if matches.size > 1
+        matches.sort.first
       elsif matches.size == 0
-        RoutedResult(T).new nil
+        nil
       else
-        RoutedResult(T).new matches.first
+        matches.first
       end
+
+      RoutedResult(T).new(match)
     end
 
     # Produces a readable indented rendering of the tree, though
