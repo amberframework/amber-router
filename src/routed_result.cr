@@ -1,7 +1,11 @@
 module Amber::Router
   class RoutedResult(T)
-    getter payload
-    def initialize(@payload : T?)
+    getter payload : T?
+
+    def initialize(terminal_segment : TerminalSegment(T)?)
+      if segment = terminal_segment
+        @payload = segment.route
+      end
     end
 
     def found?
