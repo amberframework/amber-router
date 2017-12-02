@@ -2,6 +2,9 @@ module Amber::Router
 
   # A tree which stores and navigates routes associated with a web application.
   #
+  # A route set represents the branches of the tree, and each vertex
+  # is a Segment. Leaf nodes are TerminalSegments.
+  #
   # ```crystal
   # route_set = Amber::Router::RouteSet(Symbol).new
   # route_set.add "/get/", :root
@@ -16,12 +19,11 @@ module Amber::Router
   # route_set.find("/get/users/3/books").payload     # => :users_books
   # route_set.find("/get/coffee_maker/slug").payload # => :slug
   # route_set.find("/get/made/up/url").payload       # => :catch_all
+  # ```
   class RouteSet(T)
     @trunk : RouteSet(T)?
     @route : T?
 
-    # A tree data structure (recursive). The initial construction has an segment
-    # of "root" and no trunk. Subtrees must pass in these details upon creation.
     def initialize(@root = true)
       @segments = Array(Segment(T) | TerminalSegment(T)).new
       @insert_count = 0
@@ -54,16 +56,14 @@ module Amber::Router
           break segment if segment.match? url_segment
         when TerminalSegment
           next
-        else
-          raise "finding subtree else oops"
         end
       end
     end
 
     # Add a route to the tree.
-    def add(path, route : T) : Nil
+    def add(path, payload : T) : Nil
       segments = split_path path
-      terminal_segment = add(segments, route, path)
+      terminal_segment = add(segments, payload, path)
       terminal_segment.priority = @insert_count
       @insert_count += 1
     end
@@ -86,9 +86,9 @@ module Amber::Router
     end
 
     # Recursively search the routing tree for potential matches to a given path.
-    def select_routes(path : Array(String), startpos = 0) : Array(TerminalSegment(T))
-      accepting_terminal_segments = startpos == path.size
-      can_recurse = startpos <= path.size - 1
+    protected def select_routes(path : Array(String), path_offset = 0) : Array(TerminalSegment(T))
+      accepting_terminal_segments = path_offset == path.size
+      can_recurse = path_offset <= path.size - 1
 
       matches = [] of TerminalSegment(T)
 
@@ -99,15 +99,15 @@ module Amber::Router
 
         when FixedSegment, VariableSegment
           next unless can_recurse
-          next unless segment.match? path[startpos]
+          next unless segment.match? path[path_offset]
 
-          matched_routes = segment.route_set.select_routes(path, startpos + 1)
+          matched_routes = segment.route_set.select_routes(path, path_offset + 1)
           matched_routes.each do |matched_route|
             matches << matched_route
           end
 
         when GlobSegment
-          matched_routes, _ = segment.route_set.reverse_select_routes(path, startpos)
+          matched_routes, _ = segment.route_set.reverse_select_routes(path, path_offset)
 
           matched_routes.each do |matched_route|
             matches << matched_route
@@ -127,13 +127,12 @@ module Amber::Router
     #
     #   { array of potential matches, position in path array : Int32)
     #
-    # TODO move segment matching and recursion into Segment classes.
-    protected def reverse_select_routes(path : Array(String), startpos, endpos = nil) : Tuple(Array(TerminalSegment(T)), Int32)
+    protected def reverse_select_routes(path : Array(String), path_offset, reverse_offset = nil) : Tuple(Array(TerminalSegment(T)), Int32)
       no_matches = [] of T
       matches = [] of TerminalSegment(T)
 
-      if endpos.nil?
-        endpos = path.size - 1
+      if reverse_offset.nil?
+        reverse_offset = path.size - 1
       end
 
       @segments.each do |segment|
@@ -142,20 +141,18 @@ module Amber::Router
           matches << segment
 
         when FixedSegment, VariableSegment
-          new_matches, new_endpos = segment.route_set.reverse_select_routes path, startpos, endpos
+          new_matches, new_endpos = segment.route_set.reverse_select_routes path, path_offset, reverse_offset
 
-          if new_matches.any? && segment.match? path[endpos]
+          if new_matches.any? && segment.match? path[reverse_offset]
             new_matches.each do |match|
               matches << match
             end
           end
 
-        else
-          raise "found glob or something else on reverse selection"
         end
       end
 
-      {matches, endpos - 1}
+      {matches, reverse_offset - 1}
     end
 
     # Find a route which is compatible with a path.
@@ -174,7 +171,7 @@ module Amber::Router
       RoutedResult(T).new(match)
     end
 
-    # Produces a readable indented rendering of the tree, though
+    # Produces a readable, indented rendering of the tree, though
     # not really compatible with the other components of a deep object inspection
     def inspect(*, ts = 0)
       @segments.reduce("") do |s, segment|
