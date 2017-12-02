@@ -5,22 +5,41 @@ An experimental url router.
 ## Usage
 
 ```crystal
+require "./amber_router"
+
 route_set = Amber::Router::RouteSet(Symbol).new
 route_set.add "/get/", :root
+
+# A : at the start of a segment indicates a named parameter
 route_set.add "/get/users/:id", :users
 route_set.add "/get/users/:id/books", :users_books
-route_set.add "/get/books/:id", :books
+
+# Supports storing multiple named arguments at the same position
+route_set.add "/get/users/:user_id/books/:23", :user_book
+
+# Predictably matches by insertion order so route overloads work as expected
+route_set.add "/get/books/mine", :my_books
+route_set.add "/get/books/:id", :book
 route_set.add "/get/books/:id/chapters", :book_chapters
-route_set.add "/get/books/:id/authors", :book_authors
-route_set.add "/get/books/:id/pictures", :book_pictures
-route_set.add "/get/users/:id/pictures", :users_pictures
-route_set.add "/get/*/slug", :slug
-route_set.add "/get/products/*/reviews", :amazon_style
+
+# Supports globs with a suffix
+route_set.add "/get/posts/*post_name/comments", :wordpress_style
+
+# Supports match-all globs.
 route_set.add "/get/*", :catch_all
 
+
+
+# Finding routes from a payload:
 route_set.find("/get/users/3").payload # => :users
 route_set.find("/get/users/3/books").payload # => :users_books
 route_set.find("/get/books/3").payload #=> :book
+
+# RoutingResults return payload and named parameters
+result = route_set.find("/get/posts/my_trip_to_kansas/comments")
+result.terminal_segment.full_path
+result.found? #=> true
+result.params #=> { "post_name" => "my_trip_to_kansas" }
 ```
 
 ## Performance
