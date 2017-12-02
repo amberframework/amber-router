@@ -14,6 +14,9 @@ route_set.add "/get/", :root
 route_set.add "/get/users/:id", :users
 route_set.add "/get/users/:id/books", :users_books
 
+# A * at the start of a segment indicates a glob parameter
+route_set.add "/get/users/comments/*date_range"
+
 # Supports storing multiple named arguments at the same position
 route_set.add "/get/users/:user_id/books/:23", :user_book
 
