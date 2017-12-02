@@ -8,16 +8,12 @@ module Amber::Router
       @priority = 0
     end
 
-    def <(other : TerminalSegment(T))
-      @priority < other.priority
-    end
-
-    def <=(other : TerminalSegment(T))
-      @priority <= other.priority
-    end
-
     def inspect(*, ts = 0)
       "#{"  " * ts}|--(#{full_path} P#{priority})\n"
+    end
+
+    def to_s(i : IO)
+      i << "Terminal: (#{full_path})"
     end
   end
 end

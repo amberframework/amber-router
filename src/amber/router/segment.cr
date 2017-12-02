@@ -26,6 +26,14 @@ module Amber::Router
       @segment == segment
     end
 
+    def parametric? : Bool
+      false
+    end
+
+    def parameter : String
+      segment
+    end
+
     def to_s(i : IO)
       i << segment
     end

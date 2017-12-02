@@ -106,4 +106,67 @@ describe Amber::Router::RouteSet do
     router2.find("/get/domains/mine").payload.should eq :a_domain
     router2.find("/get/domains/32").payload.should eq :a_domain
   end
+
+  it "renders parameters from the route into the response" do
+    router = build do
+      add "/get/name/:name/", :parametric_route
+    end
+
+    result = router.find("/get/name/robert_paulson")
+    result.params.should eq({ "name" => "robert_paulson" })
+  end
+
+  it "renders glob parameters" do
+    router = build do
+      add "/get/products/*slug/dp/:id", :product
+    end
+
+    result = router.find("/get/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ")
+    result.params.should eq({
+      "id" => "B01J7DAMCQ",
+      "slug" => "Winter-Windproof-Trapper-Hat"
+    })
+  end
+
+  it "renders glob parameters which span segments" do
+    router = build do
+      add "/get/categories/*categories/products", :categories_products
+    end
+
+    result = router.find("/get/categories/hats/scarfs/mittens/gloves/products")
+    result.params.should eq({
+      "categories" => "hats/scarfs/mittens/gloves"
+    })
+  end
+
+  it "renders a glob parameter which gobbles up the rest of a url" do
+    router = build do
+      add "/get/*", :spa_route
+    end
+
+    result = router.find("/get/products/1")
+    result.payload.should eq :spa_route
+  end
+
+  it "renders a named glob parameter which gobbles up the rest of a url" do
+    router = build do
+      add "/get/*url", :spa_route
+    end
+
+    router.find("/get/products/1").params.should eq({
+      "url" => "products/1"
+    })
+  end
+
+  it "handles multiple variable length routes nested under a glob" do
+    router = build do
+      add "/get/*/two/test", :test_two
+      add "/get/*/test", :test_one
+    end
+
+    router.find("/get/products/test").payload.should eq :test_one
+    router.find("/get/products/two/test").payload.should eq :test_two
+  end
+
+
 end

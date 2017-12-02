@@ -86,16 +86,16 @@ module Amber::Router
     end
 
     # Recursively search the routing tree for potential matches to a given path.
-    protected def select_routes(path : Array(String), path_offset = 0) : Array(TerminalSegment(T))
+    protected def select_routes(path : Array(String), path_offset = 0) : Array(RoutedResult(T))
       accepting_terminal_segments = path_offset == path.size
       can_recurse = path_offset <= path.size - 1
 
-      matches = [] of TerminalSegment(T)
+      matches = [] of RoutedResult(T)
 
       @segments.each do |segment|
         case segment
         when TerminalSegment
-          matches << segment if accepting_terminal_segments
+          matches << RoutedResult(T).new segment if accepting_terminal_segments
 
         when FixedSegment, VariableSegment
           next unless can_recurse
@@ -103,14 +103,19 @@ module Amber::Router
 
           matched_routes = segment.route_set.select_routes(path, path_offset + 1)
           matched_routes.each do |matched_route|
+            matched_route[segment.parameter] = path[path_offset] if segment.parametric?
             matches << matched_route
           end
 
         when GlobSegment
-          matched_routes, _ = segment.route_set.reverse_select_routes(path, path_offset)
+          glob_matches = segment.route_set.reverse_select_routes(path)
 
-          matched_routes.each do |matched_route|
-            matches << matched_route
+          glob_matches.each do |glob_match|
+            if segment.parametric?
+              glob_match.routed_result[segment.parameter] = path[path_offset..glob_match.match_position].join('/')
+            end
+
+            matches << glob_match.routed_result
           end
         end
       end
@@ -127,32 +132,34 @@ module Amber::Router
     #
     #   { array of potential matches, position in path array : Int32)
     #
-    protected def reverse_select_routes(path : Array(String), path_offset, reverse_offset = nil) : Tuple(Array(TerminalSegment(T)), Int32)
+    protected def reverse_select_routes(path : Array(String)) : Array(GlobMatch(T))
       no_matches = [] of T
-      matches = [] of TerminalSegment(T)
-
-      if reverse_offset.nil?
-        reverse_offset = path.size - 1
-      end
+      matches = [] of GlobMatch(T)
 
       @segments.each do |segment|
         case segment
         when TerminalSegment
-          matches << segment
+          match = GlobMatch(T).new segment, path
+          matches << match
 
         when FixedSegment, VariableSegment
-          new_matches, new_endpos = segment.route_set.reverse_select_routes path, path_offset, reverse_offset
+          glob_matches = segment.route_set.reverse_select_routes path
 
-          if new_matches.any? && segment.match? path[reverse_offset]
-            new_matches.each do |match|
-              matches << match
+          glob_matches.each do |glob_match|
+            if segment.match? glob_match.current_segment
+              if segment.parametric?
+                glob_match.routed_result[segment.parameter] = glob_match.current_segment
+              end
+
+              glob_match.match_position -= 1
+              matches << glob_match
             end
           end
 
         end
       end
 
-      {matches, reverse_offset - 1}
+      matches
     end
 
     # Find a route which is compatible with a path.
@@ -160,15 +167,13 @@ module Amber::Router
       segments = split_path path
       matches = select_routes(segments)
 
-      match = if matches.size > 1
+      if matches.size > 1
         matches.sort.first
       elsif matches.size == 0
-        nil
+        RoutedResult(T).new nil
       else
         matches.first
       end
-
-      RoutedResult(T).new(match)
     end
 
     # Produces a readable, indented rendering of the tree, though
