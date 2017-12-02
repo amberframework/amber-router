@@ -88,4 +88,4 @@ globs with suffix match 674.26k (  1.48µs) (± 7.43%) fastest
 
 ## Contributing
 
-Contributions are welcome. Please fork the repository, commit changes on a branch, and then open a pull request.
+Contributions are welcome. Please fork the repository, commit changes on a branch, and then open a pull request. Please include the output of `src/benchmark.cr` as an update to this readme.
