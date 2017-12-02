@@ -29,33 +29,42 @@ route_set.find("/get/books/3").payload #=> :book
 
 ```
 /get/
-router: root   2.51M (398.68ns) (± 5.94%)  1.87× slower
- radix: root   4.69M (213.15ns) (± 6.87%)       fastest
+router: root   1.89M (528.64ns) (± 6.74%)  1.39× slower
+ radix: root   2.63M (380.58ns) (± 7.76%)       fastest
 
 
 /get/books/23/chapters
-router: deep    1.1M (912.59ns) (± 8.47%)       fastest
- radix: deep 995.39k (   1.0µs) (± 2.32%)  1.10× slower
+router: deep 905.13k (   1.1µs) (± 8.08%)       fastest
+ radix: deep 864.83k (  1.16µs) (± 4.51%)  1.05× slower
 
 
 /get/books/23/pages
-router: wrong    1.5M (664.99ns) (± 2.98%)       fastest
- radix: wrong   1.24M (806.25ns) (± 1.81%)  1.21× slower
+router: wrong   1.38M (723.32ns) (± 4.60%)       fastest
+ radix: wrong   1.08M (928.85ns) (± 3.14%)  1.28× slower
 
 
 /get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z
-router: many segments 266.87k (  3.75µs) (± 5.51%)  5.81× slower
- radix: many segments   1.55M (645.03ns) (± 2.28%)       fastest
+router: many segments 225.91k (  4.43µs) (± 6.60%)  5.59× slower
+ radix: many segments   1.26M (792.01ns) (± 5.87%)       fastest
 
 
 /get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6
-router: many variables 280.95k (  3.56µs) (± 5.39%)       fastest
- radix: many variables 272.64k (  3.67µs) (± 2.95%)  1.03× slower
+router: many variables  144.4k (  6.93µs) (± 4.91%)  1.74× slower
+ radix: many variables 251.57k (  3.98µs) (± 5.11%)       fastest
 
 
 /get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3
-router: long_segments   1.48M (677.61ns) (± 2.54%)       fastest
- radix: long_segments  895.5k (  1.12µs) (± 5.43%)  1.65× slower
+router: long_segments   1.14M (879.49ns) (± 6.36%)       fastest
+ radix: long_segments 760.79k (  1.31µs) (± 4.41%)  1.49× slower
+
+
+/post/products/23/reviews/
+router: catchall route   1.22M ( 820.1ns) (± 4.77%)  1.61× slower
+ radix: catchall route   1.96M (510.91ns) (± 4.64%)       fastest
+
+
+/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ
+globs with suffix match 674.26k (  1.48µs) (± 7.43%) fastest
 ```
 
 ## Contributing

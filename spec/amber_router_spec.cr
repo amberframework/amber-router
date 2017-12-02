@@ -17,7 +17,7 @@ describe Amber::Router::RouteSet do
     build.find("/get").payload.should eq :root
   end
 
-  it "resolves deep urls" do
+  it "resolves nested urls" do
     router = build do
       add "/get/books/23/chapters", :book_chapters
     end
@@ -37,6 +37,7 @@ describe Amber::Router::RouteSet do
   it "routes many segments" do
     router = build do
       add "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z", :alphabet
+      add "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/f", :almost_alphabet
     end
 
     result = router.find "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z"
@@ -62,14 +63,13 @@ describe Amber::Router::RouteSet do
       add "/get/books/:id/pictures", :book_pictures
     end
 
-    router.find("/get/")                   .payload.should eq :root
-    router.find("/get/users/3")            .payload.should eq :users
+    router.find("/get/")                 .payload.should eq :root
+    router.find("/get/users/3")          .payload.should eq :users
     router.find("/get/users/3/books")    .payload.should eq :users_books
     router.find("/get/books/3")          .payload.should eq :books
     router.find("/get/books/3/chapters") .payload.should eq :book_chapters
     router.find("/get/books/3/authors")  .payload.should eq :book_authors
     router.find("/get/books/3/pictures") .payload.should eq :book_pictures
-    router.find("/get/books/3/pages")    .payload.should eq nil
   end
 
   it "resolves glob urls" do
@@ -88,17 +88,85 @@ describe Amber::Router::RouteSet do
     router.find("/get/products/fancy_hairdoo/with_name").payload.should eq :products_slug_with_name
   end
 
-  it "handles partially shared keys" do
-    # from https://github.com/luislavena/radix/blob/master/spec/radix/tree_spec.cr#L536
-    # tree = Tree(Symbol).new
-    # tree.add "/orders/:id", :specific_order
-    # tree.add "/orders/closed", :closed_orders
+  it "resolves multiple matches by sorting by insertion order" do
+    router1 = build do
+      add "/get/domains/mine", :my_domains
+      add "/get/domains/:id", :a_domain
+    end
 
-    # result = tree.find("/orders/10")
-    # result.found?.should be_true
-    # result.key.should eq("/orders/:id")
-    # result.params.has_key?("id").should be_true
-    # result.params["id"].should eq("10")
+    router1.find("/get/domains/mine").payload.should eq :my_domains
+    router1.find("/get/domains/32").payload.should eq :a_domain
+
+
+    router2 = build do
+      add "/get/domains/:id", :a_domain
+      add "/get/domains/mine", :my_domains
+    end
+
+    router2.find("/get/domains/mine").payload.should eq :a_domain
+    router2.find("/get/domains/32").payload.should eq :a_domain
   end
+
+  it "renders parameters from the route into the response" do
+    router = build do
+      add "/get/name/:name/", :parametric_route
+    end
+
+    result = router.find("/get/name/robert_paulson")
+    result.params.should eq({ "name" => "robert_paulson" })
+  end
+
+  it "renders glob parameters" do
+    router = build do
+      add "/get/products/*slug/dp/:id", :product
+    end
+
+    result = router.find("/get/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ")
+    result.params.should eq({
+      "id" => "B01J7DAMCQ",
+      "slug" => "Winter-Windproof-Trapper-Hat"
+    })
+  end
+
+  it "renders glob parameters which span segments" do
+    router = build do
+      add "/get/categories/*categories/products", :categories_products
+    end
+
+    result = router.find("/get/categories/hats/scarfs/mittens/gloves/products")
+    result.params.should eq({
+      "categories" => "hats/scarfs/mittens/gloves"
+    })
+  end
+
+  it "renders a glob parameter which gobbles up the rest of a url" do
+    router = build do
+      add "/get/*", :spa_route
+    end
+
+    result = router.find("/get/products/1")
+    result.payload.should eq :spa_route
+  end
+
+  it "renders a named glob parameter which gobbles up the rest of a url" do
+    router = build do
+      add "/get/*url", :spa_route
+    end
+
+    router.find("/get/products/1").params.should eq({
+      "url" => "products/1"
+    })
+  end
+
+  it "handles multiple variable length routes nested under a glob" do
+    router = build do
+      add "/get/*/two/test", :test_two
+      add "/get/*/test", :test_one
+    end
+
+    router.find("/get/products/test").payload.should eq :test_one
+    router.find("/get/products/two/test").payload.should eq :test_two
+  end
+
 
 end
