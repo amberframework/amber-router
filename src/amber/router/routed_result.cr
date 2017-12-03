@@ -1,6 +1,6 @@
 module Amber::Router
   class RoutedResult(T)
-    getter params = {} of String => String?
+    getter params = {} of String => String
 
     def initialize(@terminal_segment : TerminalSegment(T)?)
     end
@@ -15,11 +15,19 @@ module Amber::Router
       ! @terminal_segment.nil?
     end
 
-    def payload
+    def payload?
       if found?
         terminal_segment.route
       else
         nil
+      end
+    end
+
+    def payload
+      if found?
+        terminal_segment.route
+      else
+        raise "nil things"
       end
     end
 
