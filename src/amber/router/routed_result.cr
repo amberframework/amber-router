@@ -47,7 +47,7 @@ module Amber::Router
       priority <= other.priority
     end
 
-    def to_s(io : IO)
+    def formatted_s(io : IO)
       io << "RoutedResult("
 
       if found?
@@ -57,10 +57,6 @@ module Amber::Router
         io << "not found"
       end
       io << ")"
-    end
-
-    def inspect(io : IO)
-      to_s(io)
     end
   end
 end

@@ -176,11 +176,10 @@ module Amber::Router
       end
     end
 
-    # Produces a readable, indented rendering of the tree, though
-    # not really compatible with the other components of a deep object inspection
-    def inspect(*, ts = 0)
+    # Produces a readable, indented rendering of the tree
+    def formatted_s(*, ts = 0)
       @segments.reduce("") do |s, segment|
-        s + segment.inspect(ts: ts + 1)
+        s + segment.formatted_s(ts: ts + 1)
       end
     end
 

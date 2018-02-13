@@ -10,14 +10,14 @@ module Amber::Router
       @route_set = RouteSet(T).new(false)
     end
 
-    def inspect(*, ts = 0)
+    def formatted_s(*, ts = 0)
       tab = "  " * ts
       String.build do |s|
         s << "#{tab}|--#{segment}"
 
         s << "\n"
         if route_set.routes?
-          s << route_set.inspect ts: ts + 1
+          s << route_set.formatted_s ts: ts + 1
         end
       end
     end
@@ -36,10 +36,6 @@ module Amber::Router
 
     def parameter : String
       @segment
-    end
-
-    def to_s(i : IO)
-      i << segment
     end
   end
 end
