@@ -50,43 +50,44 @@ result.params #=> { "post_name" => "my_trip_to_kansas" }
 `crystal run src/benchmark.cr --release` produces a comparison of this router and [radix](https://github.com/luislavena/radix). As of now, this is the comparison:
 
 ```
+> crystal run src/benchmark.cr --release
 /get/
-router: root   1.89M (528.64ns) (± 6.74%)  1.39× slower
- radix: root   2.63M (380.58ns) (± 7.76%)       fastest
+router: root   1.68M (596.67ns) (± 5.64%)  1.37× slower
+ radix: root    2.3M (435.57ns) (± 5.08%)       fastest
 
 
 /get/books/23/chapters
-router: deep 905.13k (   1.1µs) (± 8.08%)       fastest
- radix: deep 864.83k (  1.16µs) (± 4.51%)  1.05× slower
+router: deep 986.19k (  1.01µs) (± 4.84%)       fastest
+ radix: deep 907.61k (   1.1µs) (± 7.06%)  1.09× slower
 
 
 /get/books/23/pages
-router: wrong   1.38M (723.32ns) (± 4.60%)       fastest
- radix: wrong   1.08M (928.85ns) (± 3.14%)  1.28× slower
+router: wrong   1.42M (702.46ns) (± 3.84%)       fastest
+ radix: wrong   1.01M (991.22ns) (± 1.30%)  1.41× slower
 
 
 /get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z
-router: many segments 225.91k (  4.43µs) (± 6.60%)  5.59× slower
- radix: many segments   1.26M (792.01ns) (± 5.87%)       fastest
+router: many segments 225.66k (  4.43µs) (± 3.87%)  5.38× slower
+ radix: many segments   1.21M ( 824.2ns) (± 1.36%)       fastest
 
 
 /get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6
-router: many variables  144.4k (  6.93µs) (± 4.91%)  1.74× slower
- radix: many variables 251.57k (  3.98µs) (± 5.11%)       fastest
+router: many variables 143.56k (  6.97µs) (± 4.55%)  1.50× slower
+ radix: many variables 215.03k (  4.65µs) (± 1.70%)       fastest
 
 
 /get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3
-router: long_segments   1.14M (879.49ns) (± 6.36%)       fastest
- radix: long_segments 760.79k (  1.31µs) (± 4.41%)  1.49× slower
+router: long_segments   1.13M (885.26ns) (± 2.95%)       fastest
+ radix: long_segments 737.03k (  1.36µs) (± 3.71%)  1.53× slower
 
 
 /post/products/23/reviews/
-router: catchall route   1.22M ( 820.1ns) (± 4.77%)  1.61× slower
- radix: catchall route   1.96M (510.91ns) (± 4.64%)       fastest
+router: catchall route   1.21M (828.65ns) (± 4.67%)  1.52× slower
+ radix: catchall route   1.84M (544.43ns) (± 3.36%)       fastest
 
 
 /put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ
-globs with suffix match 674.26k (  1.48µs) (± 7.43%) fastest
+globs with suffix match 667.91k (   1.5µs) (± 3.89%) fastest
 ```
 
 ## Contributing
