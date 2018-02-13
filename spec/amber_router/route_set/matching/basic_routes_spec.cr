@@ -5,6 +5,11 @@ describe "basic routes" do
     build.find("/get").payload?.should eq :root
   end
 
+  it "doesnt care about leading slashes" do
+    build.find("get").payload?.should eq :root
+    build.find("/get").payload?.should eq :root
+  end
+
   it "resolves nested urls" do
     router = build do
       add "/get/books/23/chapters", :book_chapters
