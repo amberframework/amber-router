@@ -1,6 +1,15 @@
 require "../../../spec_helper"
 
 describe "routes with variables" do
+  it "routes correctly with variables" do
+    router = build do
+      add "/get/users/:id", :user_path
+    end
+
+    result = router.find "/get/users/3"
+    result.payload?.should eq :user_path
+  end
+
   it "routes many variables" do
     router = build do
       add "/get/var/:b/:c/:d/:e/:f/:g/:h/:i/:j/:k/:l/:m/:n/:o/:p/:q/:r/:s/:t/:u/:v/:w/:x/:y/:z", :variable_alphabet
