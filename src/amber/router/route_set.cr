@@ -22,9 +22,9 @@ module Amber::Router
   class RouteSet(T)
     @trunk : RouteSet(T)?
     @route : T?
+    @segments = [] of Segment(T) | TerminalSegment(T)
 
     def initialize(@root = true)
-      @segments = Array(Segment(T) | TerminalSegment(T)).new
       @insert_count = 0
     end
 
@@ -51,9 +51,9 @@ module Amber::Router
     private def find_subtree(url_segment : String) : Segment(T)?
       @segments.each do |segment|
         case segment
-        when Segment
+        when Segment(T)
           break segment if segment.literal_match? url_segment
-        when TerminalSegment
+        when TerminalSegment(T)
           next
         end
       end
@@ -93,10 +93,10 @@ module Amber::Router
 
       @segments.each do |segment|
         case segment
-        when TerminalSegment
+        when TerminalSegment(T)
           matches << RoutedResult(T).new segment if accepting_terminal_segments
 
-        when FixedSegment, VariableSegment
+        when FixedSegment(T), VariableSegment(T)
           next unless can_recurse
           next unless segment.match? path[path_offset]
 
@@ -106,7 +106,7 @@ module Amber::Router
             matches << matched_route
           end
 
-        when GlobSegment
+        when GlobSegment(T)
           glob_matches = segment.route_set.reverse_select_routes(path)
 
           glob_matches.each do |glob_match|
