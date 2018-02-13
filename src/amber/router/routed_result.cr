@@ -27,7 +27,7 @@ module Amber::Router
       if found?
         terminal_segment.route
       else
-        raise "nil things"
+        nil
       end
     end
 

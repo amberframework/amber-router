@@ -10,18 +10,18 @@ class Benchmarker
 
   def initialize
     @shared_routes = {
-      "/get/"                   => :root,
-      "/get/users/:id"          => :users,
-      "/get/users/:id/books"    => :users_books,
-      "/get/books/:id"          => :books,
-      "/get/books/:id/chapters" => :book_chapters,
-      "/get/books/:id/authors"  => :book_authors,
-      "/get/books/:id/pictures" => :book_pictures,
-      "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z" => :alphabet,
+      "/get/"                                                                               => :root,
+      "/get/users/:id"                                                                      => :users,
+      "/get/users/:id/books"                                                                => :users_books,
+      "/get/books/:id"                                                                      => :books,
+      "/get/books/:id/chapters"                                                             => :book_chapters,
+      "/get/books/:id/authors"                                                              => :book_authors,
+      "/get/books/:id/pictures"                                                             => :book_pictures,
+      "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z"                            => :alphabet,
       "/get/var/:b/:c/:d/:e/:f/:g/:h/:i/:j/:k/:l/:m/:n/:o/:p/:q/:r/:s/:t/:u/:v/:w/:x/:y/:z" => :variable_alphabet,
-      "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/:id"   => :foobar_bat,
-      "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbom/:id"   => :foobar_bom,
-      "/post/*" => :catchall
+      "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/:id"                           => :foobar_bat,
+      "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbom/:id"                           => :foobar_bom,
+      "/post/*"                                                                             => :catchall,
     }
 
     @amber_routes = {
@@ -36,7 +36,7 @@ class Benchmarker
       amber_router.add k, v
     end
 
-    @amber_routes.each do |k,v|
+    @amber_routes.each do |k, v|
       amber_router.add k, v
     end
   end
@@ -59,10 +59,10 @@ class Benchmarker
   def compare(name : String, route : String, result : Symbol?)
     puts route
 
-     Benchmark.ips do |x|
-       x.report("router: #{name}") { run_check(amber_router, route, result) }
-       x.report("radix: #{name}") { run_check(radix_router, route, result) }
-     end
+    Benchmark.ips do |x|
+      x.report("router: #{name}") { run_check(amber_router, route, result) }
+      x.report("radix: #{name}") { run_check(radix_router, route, result) }
+    end
 
     puts
     puts

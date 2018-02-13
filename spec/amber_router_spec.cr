@@ -123,8 +123,8 @@ describe Amber::Router::RouteSet do
 
     result = router.find("/get/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ")
     result.params.should eq({
-      "id" => "B01J7DAMCQ",
-      "slug" => "Winter-Windproof-Trapper-Hat"
+      "id"   => "B01J7DAMCQ",
+      "slug" => "Winter-Windproof-Trapper-Hat",
     })
   end
 
@@ -167,6 +167,4 @@ describe Amber::Router::RouteSet do
     router.find("/get/products/test").payload.should eq :test_one
     router.find("/get/products/two/test").payload.should eq :test_two
   end
-
-
 end
