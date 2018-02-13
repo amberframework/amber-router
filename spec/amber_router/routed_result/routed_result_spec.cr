@@ -44,4 +44,16 @@ describe Amber::Router::RoutedResult do
       result["name"].should eq "john"
     end
   end
+
+  context "path" do
+    it "allows retrieving the matched path" do
+      router = build do
+        add "/get/users/:id", :user
+      end
+
+      result = router.find("/get/users/3")
+      result.found?.should be_true
+      result.path.should eq "/get/users/:id"
+    end
+  end
 end
