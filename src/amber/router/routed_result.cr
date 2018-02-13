@@ -31,6 +31,10 @@ module Amber::Router
       end
     end
 
+    def payload
+      payload?
+    end
+
     def priority
       if found?
         terminal_segment.priority
