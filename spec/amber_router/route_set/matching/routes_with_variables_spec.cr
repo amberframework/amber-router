@@ -7,7 +7,7 @@ describe "routes with variables" do
     end
 
     result = router.find "/get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6"
-    result.payload.should eq :variable_alphabet
+    result.payload?.should eq :variable_alphabet
   end
 
   it "correctly selects routes" do
@@ -20,12 +20,12 @@ describe "routes with variables" do
       add "/get/books/:id/pictures", :book_pictures
     end
 
-    router.find("/get/")                 .payload.should eq :root
-    router.find("/get/users/3")          .payload.should eq :users
-    router.find("/get/users/3/books")    .payload.should eq :users_books
-    router.find("/get/books/3")          .payload.should eq :books
-    router.find("/get/books/3/chapters") .payload.should eq :book_chapters
-    router.find("/get/books/3/authors")  .payload.should eq :book_authors
-    router.find("/get/books/3/pictures") .payload.should eq :book_pictures
+    router.find("/get/")                 .payload?.should eq :root
+    router.find("/get/users/3")          .payload?.should eq :users
+    router.find("/get/users/3/books")    .payload?.should eq :users_books
+    router.find("/get/books/3")          .payload?.should eq :books
+    router.find("/get/books/3/chapters") .payload?.should eq :book_chapters
+    router.find("/get/books/3/authors")  .payload?.should eq :book_authors
+    router.find("/get/books/3/pictures") .payload?.should eq :book_pictures
   end
 end

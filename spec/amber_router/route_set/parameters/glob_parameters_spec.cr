@@ -30,7 +30,7 @@ describe "glob parameters" do
     end
 
     result = router.find("/get/products/1")
-    result.payload.should eq :spa_route
+    result.payload?.should eq :spa_route
   end
 
   it "renders a named glob parameter which gobbles up the rest of a url" do

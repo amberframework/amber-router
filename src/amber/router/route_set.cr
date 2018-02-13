@@ -1,5 +1,4 @@
 module Amber::Router
-
   # A tree which stores and navigates routes associated with a web application.
   #
   # A route set represents the branches of the tree, and each vertex
@@ -13,7 +12,7 @@ module Amber::Router
   # route_set.add "/get/*/slug", :slug
   # route_set.add "/get/*", :catch_all
   #
-  # p route_set # => a textual representation of the routing tree
+  # p route_set.formatted_s # => a textual representation of the routing tree
   #
   # route_set.find("/get/users/3").payload           # => :users
   # route_set.find("/get/users/3/books").payload     # => :users_books

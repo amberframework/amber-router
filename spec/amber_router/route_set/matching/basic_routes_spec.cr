@@ -2,7 +2,7 @@ require "../../../spec_helper.cr"
 
 describe "basic routes" do
   it "resolves a root route" do
-    build.find("/get").payload.should eq :root
+    build.find("/get").payload?.should eq :root
   end
 
   it "resolves nested urls" do
@@ -11,14 +11,14 @@ describe "basic routes" do
     end
 
     result = router.find "/get/books/23/chapters"
-    result.payload.should eq :book_chapters
+    result.payload?.should eq :book_chapters
   end
 
-  it "returns a nil payload for not found urls" do
+  it "returns a nil payload? for not found urls" do
     router = build
     result = router.find "/get/books/23/pages"
     result.found?.should eq false
-    result.payload.should eq nil
+    result.payload?.should eq nil
   end
 
   it "routes many segments" do
@@ -28,6 +28,6 @@ describe "basic routes" do
     end
 
     result = router.find "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z"
-    result.payload.should eq :alphabet
+    result.payload?.should eq :alphabet
   end
 end
