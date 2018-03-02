@@ -1,0 +1,15 @@
+2018-03-02  v0.0.3 - Initial stable release
+
+Features
+	* Parameterized Segments
+	  - parameterized segments start with a `:`
+	  - bugfix from radix: named parameters at the same nesting level can
+	    have different names
+
+	* Glob Segments
+	  - glob segments will match any part of a URL and start with a `*`
+	  - bugfix from radix: globs don't _need_ to swallow the entire url,
+	    but can be placed in the middle of a url, eg: /path/*/path/
+
+	* When multiple routes are matched, they're sorted by insertion order
+	  and the first is returned.
