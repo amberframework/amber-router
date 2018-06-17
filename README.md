@@ -1,6 +1,6 @@
 # Amber/Router
 
-[![Build Status](https://travis-ci.org/amberframework/router.svg?branch=master)](https://travis-ci.org/amberframework/router) A tree based url router with a similar API interface to [radix](luislavena/radix).
+[![Build Status](https://travis-ci.org/amberframework/amber-router.svg?branch=master)](https://travis-ci.org/amberframework/amber-router) A tree based url router with a similar API interface to [radix](luislavena/radix).
 
 ## Usage
 
