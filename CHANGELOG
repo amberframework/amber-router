@@ -1,3 +1,9 @@
+2018-06-18  v0.1.0 - Update for Crystal 0.25.0
+
+Bugfix
+	* Includes workaround for delegation bug in Crystal 0.25.0
+
+
 2018-03-02  v0.0.3 - Initial stable release
 
 Features
