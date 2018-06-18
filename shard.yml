@@ -1,10 +1,10 @@
 name: amber_router
-version: 0.0.3
+version: 0.1.0
 
 authors:
   - Robert L Carpenter <robert@robacarp.com>
 
-crystal: 0.23.1
+crystal: 0.25.0
 
 license: MIT
 
