@@ -5,13 +5,7 @@ module Amber::Router
     def initialize(@terminal_segment : TerminalSegment(T)?)
     end
 
-    # This doesn't work, bug in crystal 0.25:
-    # delegate :[], :[]=, to: @params
-    delegate :[], to: @params
-
-    def []=(k : String, v : String) : String
-      @params[k.to_s] = v
-    end
+    delegate :[], :[]=, to: @params
 
     def terminal_segment
       @terminal_segment.not_nil!
