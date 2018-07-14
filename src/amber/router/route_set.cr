@@ -61,10 +61,22 @@ module Amber::Router
 
     # Add a route to the tree.
     def add(path, payload : T) : Nil
-      segments = split_path path
-      terminal_segment = add(segments, payload, path)
-      terminal_segment.priority = @insert_count
-      @insert_count += 1
+      if path.includes?("(") || path.includes?(")")
+        paths = parse_subpaths path
+      else
+        paths = [path]
+      end
+
+      paths.each do |path|
+        segments = split_path path
+        terminal_segment = add(segments, payload, path)
+        terminal_segment.priority = @insert_count
+        @insert_count += 1
+      end
+    end
+
+    def parse_subpaths(path : String) : Array(String)
+      Parsers::OptionalSegmentResolver.resolve path
     end
 
     # Recursively find or create subtrees matching a given path, and store the
