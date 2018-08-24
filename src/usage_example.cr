@@ -13,7 +13,7 @@ class RouteSetDemonstration
     add_route "/get/books/:id/chapters", :book_chapters
     add_route "/get/books/:id/authors", :book_authors
     add_route "/get/books/:id/pictures", :book_pictures
-    add_route "/get/users/:id/pictures", :users_pictures
+    add_route "/get/users/:id/pictures(/sorted)", :users_pictures
     add_route "/get/*/slug", :slug
     add_route "/get/products/*slug/reviews", :product_reviews
     add_route "/get/*", :catch_all
@@ -42,7 +42,7 @@ RouteSetDemonstration.new.tap do |rsd|
   puts "="*80
   puts "Rendering of route tree:"
   puts "="*80
-  p rsd.route_set
+  puts rsd.route_set.formatted_s
   puts "="*80
   puts
   puts
@@ -51,4 +51,6 @@ RouteSetDemonstration.new.tap do |rsd|
   rsd.find_and_check "/get/very/warm/winter/hat/slug", :slug
   rsd.find_and_check "/get/products/very/warm/winter/hat/reviews", :product_reviews
   rsd.find_and_check "/get/spa/yolo", :catch_all
+  rsd.find_and_check "/get/users/:id/pictures", :users_pictures
+  rsd.find_and_check "/get/users/:id/pictures/sorted", :users_pictures
 end
