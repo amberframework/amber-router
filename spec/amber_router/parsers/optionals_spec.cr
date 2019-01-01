@@ -12,7 +12,7 @@ describe "resolving optional segments in paths" do
     path = "/users/:id(/children)/"
     expected = [
       "/users/:id/",
-      "/users/:id/children/"
+      "/users/:id/children/",
     ]
     actual = Amber::Router::Parsers::OptionalSegmentResolver.resolve(path)
     actual.should eq expected
@@ -23,7 +23,7 @@ describe "resolving optional segments in paths" do
     expected = [
       "/users/:id/",
       "/users/:id/children/",
-      "/users/:id/children/grandchildren/"
+      "/users/:id/children/grandchildren/",
     ]
 
     actual = Amber::Router::Parsers::OptionalSegmentResolver.resolve(path)
@@ -36,7 +36,7 @@ describe "resolving optional segments in paths" do
       "/users/:id/",
       "/users/:id/grandchildren/",
       "/users/:id/children/",
-      "/users/:id/children/grandchildren/"
+      "/users/:id/children/grandchildren/",
     ]
 
     actual = Amber::Router::Parsers::OptionalSegmentResolver.resolve(path)
@@ -50,5 +50,4 @@ describe "resolving optional segments in paths" do
       Amber::Router::Parsers::OptionalSegmentResolver.resolve(path)
     end
   end
-
 end

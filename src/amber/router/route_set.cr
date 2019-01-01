@@ -23,19 +23,20 @@ module Amber::Router
     @trunk : RouteSet(T)?
     @route : T?
     @segments = [] of Segment(T) | TerminalSegment(T)
+    alias Requirements = Hash(String, Regex)
 
     def initialize(@root = true)
       @insert_count = 0
     end
 
     # Look for or create a subtree matching a given segment.
-    private def find_subtree!(segment : String) : Segment(T)
+    private def find_subtree!(segment : String, requirements : Requirements) : Segment(T)
       if subtree = find_subtree segment
         subtree
       else
         case
         when segment.starts_with? ':'
-          new_segment = VariableSegment(T).new(segment)
+          new_segment = VariableSegment(T).new(segment, requirements[segment.lchop(':')]?)
         when segment.starts_with? '*'
           new_segment = GlobSegment(T).new(segment)
         else
@@ -60,16 +61,16 @@ module Amber::Router
     end
 
     # Add a route to the tree.
-    def add(path, payload : T) : Nil
+    def add(path, payload : T, requirements : Requirements = {} of String => Regex) : Nil
       if path.includes?("(") || path.includes?(")")
         paths = parse_subpaths path
       else
         paths = [path]
       end
 
-      paths.each do |path|
-        segments = split_path path
-        terminal_segment = add(segments, payload, path)
+      paths.each do |p|
+        segments = split_path p
+        terminal_segment = add(segments, payload, p, requirements)
         terminal_segment.priority = @insert_count
         @insert_count += 1
       end
@@ -81,15 +82,15 @@ module Amber::Router
 
     # Recursively find or create subtrees matching a given path, and store the
     # application route at the leaf.
-    protected def add(url_segments : Array(String), route : T, full_path : String) : TerminalSegment(T)
+    protected def add(url_segments : Array(String), route : T, full_path : String, requirements : Requirements) : TerminalSegment(T)
       unless url_segments.any?
         segment = TerminalSegment(T).new(route, full_path)
         @segments.push segment
         return segment
       end
 
-      segment = find_subtree! url_segments.shift
-      segment.route_set.add(url_segments, route, full_path)
+      segment = find_subtree! url_segments.shift, requirements
+      segment.route_set.add(url_segments, route, full_path, requirements)
     end
 
     def routes? : Bool
@@ -107,17 +108,18 @@ module Amber::Router
         case segment
         when TerminalSegment(T)
           matches << RoutedResult(T).new segment if accepting_terminal_segments
-
         when FixedSegment(T), VariableSegment(T)
           next unless can_recurse
           next unless segment.match? path[path_offset]
+
+          # Do not match if the segment has a requirement, and does not match
+          next if segment.requirement && (path[path_offset] =~ segment.requirement).nil?
 
           matched_routes = segment.route_set.select_routes(path, path_offset + 1)
           matched_routes.each do |matched_route|
             matched_route[segment.parameter] = path[path_offset] if segment.parametric?
             matches << matched_route
           end
-
         when GlobSegment(T)
           glob_matches = segment.route_set.reverse_select_routes(path)
 
@@ -144,7 +146,6 @@ module Amber::Router
     #   { array of potential matches, position in path array : Int32)
     #
     protected def reverse_select_routes(path : Array(String)) : Array(GlobMatch(T))
-      no_matches = [] of T
       matches = [] of GlobMatch(T)
 
       @segments.each do |segment|
@@ -152,7 +153,6 @@ module Amber::Router
         when TerminalSegment
           match = GlobMatch(T).new segment, path
           matches << match
-
         when FixedSegment, VariableSegment
           glob_matches = segment.route_set.reverse_select_routes path
 
@@ -166,7 +166,6 @@ module Amber::Router
               matches << glob_match
             end
           end
-
         end
       end
 
@@ -202,6 +201,5 @@ module Amber::Router
         segment
       end.compact
     end
-
   end
 end

@@ -5,8 +5,9 @@ module Amber::Router
 
     property route_set : RouteSet(T)
     property segment : String
+    property requirement : Regex?
 
-    def initialize(@segment)
+    def initialize(@segment, @requirement : Regex? = nil)
       @route_set = RouteSet(T).new(false)
     end
 
