@@ -1,7 +1,11 @@
 module Amber::Router
   class VariableSegment(T) < Segment(T)
+    def initialize(segment, @pattern : Regex? = nil)
+      super segment
+    end
+
     def match?(segment : String) : Bool
-      true
+      (p = @pattern) ? !(segment =~ p).nil? : true
     end
 
     def parametric? : Bool

@@ -1,6 +1,6 @@
 # Amber/Router
 
-[![Build Status](https://travis-ci.org/amberframework/amber-router.svg?branch=master)](https://travis-ci.org/amberframework/amber-router) A tree based url router with a similar API interface to [radix](luislavena/radix).
+[![Build Status](https://travis-ci.org/amberframework/amber-router.svg?branch=master)](https://travis-ci.org/amberframework/amber-router) A tree based url router with a similar API interface to [radix](https://github.com/luislavena/radix).
 
 ## Usage
 
@@ -61,42 +61,38 @@ result.params #=> { "post_name" => "my_trip_to_kansas" }
 ```Text
 > crystal run src/benchmark.cr --release
 /get/
-router: root   3.75M (266.75ns) (± 2.15%)  545 B/op   1.36× slower
-radix: root   5.09M (196.42ns) (± 2.62%)  321 B/op        fastest
-
+router: root   3.76M (266.26ns) (± 4.05%)  546 B/op   1.48× slower
+ radix: root   5.56M (179.89ns) (± 1.38%)  320 B/op        fastest
 
 /get/books/23/chapters
-router: deep   1.68M (594.77ns) (± 2.02%)  1041 B/op        fastest
-radix: deep   1.53M (654.95ns) (± 5.03%)   592 B/op   1.10× slower
-
+router: deep   1.76M (566.64ns) (± 1.49%)  1040 B/op        fastest
+ radix: deep   1.69M (592.92ns) (± 1.63%)   592 B/op   1.05× slower
 
 /get/books/23/pages
-router: wrong   2.36M (423.88ns) (± 2.74%)  768 B/op        fastest
-radix: wrong   1.73M (578.03ns) (± 2.21%)  514 B/op   1.36× slower
-
+router: wrong   2.44M (410.43ns) (± 1.41%)  768 B/op        fastest
+ radix: wrong   1.79M ( 560.0ns) (± 6.56%)  514 B/op   1.36× slower
 
 /get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z
-router: many segments 453.85k (   2.2µs) (± 5.73%)  4500 B/op   4.29× slower
-radix: many segments   1.95M (513.66ns) (± 2.44%)   449 B/op        fastest
-
+router: many segments 485.02k (  2.06µs) (± 1.67%)  4496 B/op   4.24× slower
+ radix: many segments   2.06M (485.98ns) (± 9.72%)   449 B/op        fastest
 
 /get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6
-router: many variables 265.79k (  3.76µs) (± 1.70%)  6529 B/op   1.49× slower
-radix: many variables 396.79k (  2.52µs) (± 1.93%)  2850 B/op        fastest
-
+router: many variables 277.63k (   3.6µs) (± 1.88%)  6528 B/op   1.52× slower
+ radix: many variables  421.4k (  2.37µs) (± 2.92%)  2849 B/op        fastest
 
 /get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3
-router: long_segments   1.74M (573.13ns) (± 2.54%)  912 B/op        fastest
-radix: long_segments   1.12M (895.61ns) (± 2.03%)  624 B/op   1.56× slower
-
+router: long_segments    1.8M (555.57ns) (± 1.34%)  912 B/op        fastest
+ radix: long_segments   1.23M (812.44ns) (± 1.97%)  624 B/op   1.46× slower
 
 /post/products/23/reviews/
-router: catchall route   2.08M (480.64ns) (± 3.67%)  928 B/op   1.72× slower
-radix: catchall route   3.58M (279.59ns) (± 3.24%)  448 B/op        fastest
-
+router: catchall route    2.2M (455.36ns) (± 0.91%)  896 B/op   1.73× slower
+ radix: catchall route   3.81M (262.62ns) (± 1.60%)  449 B/op        fastest
 
 /put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ
-globs with suffix match   1.12M (896.18ns) (± 2.20%)  1584 B/op  fastest
+globs with suffix match   1.18M (844.57ns) (± 1.41%)  1489 B/op  fastest
+
+Route Requirements
+route with requirement   1.83M ( 545.2ns) (± 1.11%)  912 B/op  fastest
 ```
 
 ## Contributing

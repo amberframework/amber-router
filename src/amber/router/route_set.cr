@@ -11,13 +11,17 @@ module Amber::Router
   # route_set.add "/get/users/:id/books", :users_books
   # route_set.add "/get/*/slug", :slug
   # route_set.add "/get/*", :catch_all
+  # route_set.add "/get/posts/:page", :pages, {"page" => /\d+/}
   #
-  # p route_set.formatted_s # => a textual representation of the routing tree
+  # route_set.formatted_s # => a textual representation of the routing tree
   #
   # route_set.find("/get/users/3").payload           # => :users
   # route_set.find("/get/users/3/books").payload     # => :users_books
   # route_set.find("/get/coffee_maker/slug").payload # => :slug
   # route_set.find("/get/made/up/url").payload       # => :catch_all
+  #
+  # route_set.find("/get/posts/123").found? # => true
+  # route_set.find("/get/posts/one").found? # => false
   # ```
   class RouteSet(T)
     @trunk : RouteSet(T)?
@@ -111,9 +115,6 @@ module Amber::Router
         when FixedSegment(T), VariableSegment(T)
           next unless can_recurse
           next unless segment.match? path[path_offset]
-
-          # Do not match if the segment has a requirement, and does not match
-          next if segment.requirement && (path[path_offset] =~ segment.requirement).nil?
 
           matched_routes = segment.route_set.select_routes(path, path_offset + 1)
           matched_routes.each do |matched_route|
