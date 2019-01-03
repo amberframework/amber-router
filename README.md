@@ -31,7 +31,7 @@ route_set.add "/get/posts/*post_name/comments", :wordpress_style
 # Supports match-all globs.
 route_set.add "/get/*", :catch_all
 
-# Supports `Regex` based argument requirements
+# Supports `Regex` based argument constraints
 route_set.add "/get/posts/:page", :user_path, {"page" => /\d+/}
 route_set.add "/get/test/:id", :user_path, {"id" => /foo_\d/}
 
@@ -61,38 +61,39 @@ result.params #=> { "post_name" => "my_trip_to_kansas" }
 ```Text
 > crystal run src/benchmark.cr --release
 /get/
-router: root   3.76M (266.26ns) (± 4.05%)  546 B/op   1.48× slower
- radix: root   5.56M (179.89ns) (± 1.38%)  320 B/op        fastest
+router: root   3.52M ( 284.1ns) (± 2.61%)  546 B/op   1.46× slower
+ radix: root   5.14M (194.63ns) (± 2.14%)  320 B/op        fastest
 
 /get/books/23/chapters
-router: deep   1.76M (566.64ns) (± 1.49%)  1040 B/op        fastest
- radix: deep   1.69M (592.92ns) (± 1.63%)   592 B/op   1.05× slower
+router: deep   1.63M (613.93ns) (± 5.10%)  1040 B/op        fastest
+ radix: deep   1.54M (648.07ns) (± 3.47%)   592 B/op   1.06× slower
 
 /get/books/23/pages
-router: wrong   2.44M (410.43ns) (± 1.41%)  768 B/op        fastest
- radix: wrong   1.79M ( 560.0ns) (± 6.56%)  514 B/op   1.36× slower
+router: wrong   2.19M (457.17ns) (± 5.27%)  768 B/op        fastest
+ radix: wrong   1.68M ( 595.0ns) (± 6.28%)  513 B/op   1.30× slower
 
 /get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z
-router: many segments 485.02k (  2.06µs) (± 1.67%)  4496 B/op   4.24× slower
- radix: many segments   2.06M (485.98ns) (± 9.72%)   449 B/op        fastest
+router: many segments 425.24k (  2.35µs) (± 7.27%)  4498 B/op   4.45× slower
+ radix: many segments   1.89M (529.03ns) (± 4.81%)   448 B/op        fastest
 
 /get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6
-router: many variables 277.63k (   3.6µs) (± 1.88%)  6528 B/op   1.52× slower
- radix: many variables  421.4k (  2.37µs) (± 2.92%)  2849 B/op        fastest
+router: many variables 259.29k (  3.86µs) (± 5.15%)  6518 B/op   1.47× slower
+ radix: many variables 381.89k (  2.62µs) (± 4.13%)  2851 B/op        fastest
 
 /get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3
-router: long_segments    1.8M (555.57ns) (± 1.34%)  912 B/op        fastest
- radix: long_segments   1.23M (812.44ns) (± 1.97%)  624 B/op   1.46× slower
+router: long_segments   1.65M (607.19ns) (± 2.42%)  912 B/op        fastest
+ radix: long_segments   1.08M (923.73ns) (± 5.42%)  624 B/op   1.52× slower
 
 /post/products/23/reviews/
-router: catchall route    2.2M (455.36ns) (± 0.91%)  896 B/op   1.73× slower
- radix: catchall route   3.81M (262.62ns) (± 1.60%)  449 B/op        fastest
+router: catchall route   2.05M (488.77ns) (± 2.60%)  896 B/op   1.69× slower
+ radix: catchall route   3.46M (289.16ns) (± 4.36%)  448 B/op        fastest
 
 /put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ
-globs with suffix match   1.18M (844.57ns) (± 1.41%)  1489 B/op  fastest
+globs with suffix match   1.11M ( 901.3ns) (± 3.29%)  1489 B/op  fastest
 
 Route Requirements
-route with requirement   1.83M ( 545.2ns) (± 1.11%)  912 B/op  fastest
+route with requirement   1.73M (578.97ns) (± 2.81%)  912 B/op   1.31× slower
+route with requirement   2.26M (442.06ns) (± 1.81%)  672 B/op        fastest
 ```
 
 ## Contributing

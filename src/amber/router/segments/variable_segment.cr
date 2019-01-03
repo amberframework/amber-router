@@ -5,7 +5,11 @@ module Amber::Router
     end
 
     def match?(segment : String) : Bool
-      (p = @pattern) ? !(segment =~ p).nil? : true
+      if p = @pattern
+        !(segment =~ p).nil?
+      else
+        true
+      end
     end
 
     def parametric? : Bool
