@@ -27,14 +27,13 @@ module Amber::Router
     @trunk : RouteSet(T)?
     @route : T?
     @segments = [] of Segment(T) | TerminalSegment(T)
-    alias Constraints = Hash(String, Regex)
 
     def initialize(@root = true)
       @insert_count = 0
     end
 
     # Look for or create a subtree matching a given segment.
-    private def find_subtree!(segment : String, constraints : Constraints) : Segment(T)
+    private def find_subtree!(segment : String, constraints : Hash(String, Regex)) : Segment(T)
       if subtree = find_subtree segment
         subtree
       else
@@ -65,19 +64,18 @@ module Amber::Router
     end
 
     # Add a route to the tree.
-    def add(path, payload : T, constraints : Constraints = {} of String => Regex) : Nil
-      if path.includes?("(") || path.includes?(")")
-        paths = parse_subpaths path
-      else
-        paths = [path]
-      end
+    def add(path, payload : T, constraints : Hash(String, Regex) = {} of String => Regex) : Nil
+      add_route path, payload, constraints
+    end
 
-      paths.each do |p|
-        segments = split_path p
-        terminal_segment = add(segments, payload, p, constraints)
-        terminal_segment.priority = @insert_count
-        @insert_count += 1
-      end
+    # Add a route to the tree.
+    def add(path, payload : T, constraints : Hash(Symbol, Regex)) : Nil
+      add_route path, payload, constraints.transform_keys { |k| k.to_s }
+    end
+
+    # Add a route to the tree.
+    def add(path, payload : T, constraints : NamedTuple) : Nil
+      add_route path, payload, constraints.to_h.transform_keys { |k| k.to_s }
     end
 
     def parse_subpaths(path : String) : Array(String)
@@ -86,7 +84,7 @@ module Amber::Router
 
     # Recursively find or create subtrees matching a given path, and store the
     # application route at the leaf.
-    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Constraints) : TerminalSegment(T)
+    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Hash(String, Regex)) : TerminalSegment(T)
       unless url_segments.any?
         segment = TerminalSegment(T).new(route, full_path)
         @segments.push segment
@@ -191,6 +189,21 @@ module Amber::Router
     def formatted_s(*, ts = 0)
       @segments.reduce("") do |s, segment|
         s + segment.formatted_s(ts: ts + 1)
+      end
+    end
+
+    private def add_route(path, payload : T, constraints : Hash(String, Regex)) : Nil
+      if path.includes?("(") || path.includes?(")")
+        paths = parse_subpaths path
+      else
+        paths = [path]
+      end
+
+      paths.each do |p|
+        segments = split_path p
+        terminal_segment = add(segments, payload, p, constraints)
+        terminal_segment.priority = @insert_count
+        @insert_count += 1
       end
     end
 

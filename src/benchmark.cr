@@ -68,7 +68,6 @@ class Benchmarker
     end
 
     puts
-    puts
   end
 
   def compare_to_radix
@@ -87,9 +86,11 @@ class Benchmarker
       x.report("globs with suffix match") { run_check(amber_router, "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ", :amazon_style_url) }
     end
 
+    puts
+
     puts "Route Constraints"
     Benchmark.ips do |x|
-      x.report("rroute with a valid constraint") { run_check(amber_router, "/get/test/foo_99", :requirement_path) }
+      x.report("route with a valid constraint") { run_check(amber_router, "/get/test/foo_99", :requirement_path) }
       x.report("route with an invalid constraint") { run_check(amber_router, "/get/test/foo_bar", nil) }
     end
   end
