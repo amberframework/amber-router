@@ -36,12 +36,11 @@ module Amber::Router::Parsers
   #   ]
   #
   class OptionalSegmentResolver
-
     def self.necessary?(path : String) : Bool
       path.includes? "(" || path.includes? ")"
     end
 
-    # Converts a path url with parenthesis into a walkable array 
+    # Converts a path url with parenthesis into a walkable array
     # of segments.
     #
     #  "users/:id(/children(/:gender))/grade/(:letter)"
@@ -122,7 +121,6 @@ module Amber::Router::Parsers
 
         if segment == "("
           open_optionals += 1
-
         elsif segment == ")"
           if open_optionals > 0
             open_optionals -= 1
@@ -138,8 +136,8 @@ module Amber::Router::Parsers
       unless optional_end
         carat_position = 0
 
-        path[0..optional_start].each do |segment|
-          carat_position += segment.size
+        path[0..optional_start].each do |s|
+          carat_position += s.size
         end
 
         indent = "  "
@@ -160,12 +158,12 @@ module Amber::Router::Parsers
       end
 
       route_with_optional = path[0...optional_start]
-      route_with_optional += path[(optional_start+1)...optional_end]
-      route_with_optional += path[(optional_end+1)..-1]
+      route_with_optional += path[(optional_start + 1)...optional_end]
+      route_with_optional += path[(optional_end + 1)..-1]
 
       route_without_optional = [] of String
       route_without_optional += path[0...optional_start]
-      route_without_optional += path[(optional_end+1)..-1]
+      route_without_optional += path[(optional_end + 1)..-1]
 
       [route_with_optional, route_without_optional]
     end

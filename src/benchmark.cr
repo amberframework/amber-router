@@ -25,7 +25,7 @@ class Benchmarker
     }
 
     @amber_routes = {
-      "/put/products/*slug/dp/:id" => :amazon_style_url
+      "/put/products/*slug/dp/:id" => :amazon_style_url,
     }
 
     @amber_router = Amber::Router::RouteSet(Symbol).new

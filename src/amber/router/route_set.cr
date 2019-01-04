@@ -67,9 +67,9 @@ module Amber::Router
         paths = [path]
       end
 
-      paths.each do |path|
-        segments = split_path path
-        terminal_segment = add(segments, payload, path)
+      paths.each do |p|
+        segments = split_path p
+        terminal_segment = add(segments, payload, p)
         terminal_segment.priority = @insert_count
         @insert_count += 1
       end
@@ -107,7 +107,6 @@ module Amber::Router
         case segment
         when TerminalSegment(T)
           matches << RoutedResult(T).new segment if accepting_terminal_segments
-
         when FixedSegment(T), VariableSegment(T)
           next unless can_recurse
           next unless segment.match? path[path_offset]
@@ -117,7 +116,6 @@ module Amber::Router
             matched_route[segment.parameter] = path[path_offset] if segment.parametric?
             matches << matched_route
           end
-
         when GlobSegment(T)
           glob_matches = segment.route_set.reverse_select_routes(path)
 
@@ -144,29 +142,26 @@ module Amber::Router
     #   { array of potential matches, position in path array : Int32)
     #
     protected def reverse_select_routes(path : Array(String)) : Array(GlobMatch(T))
-      no_matches = [] of T
       matches = [] of GlobMatch(T)
 
-      @segments.each do |segment|
-        case segment
+      @segments.each do |s|
+        case s
         when TerminalSegment
-          match = GlobMatch(T).new segment, path
+          match = GlobMatch(T).new s, path
           matches << match
-
         when FixedSegment, VariableSegment
-          glob_matches = segment.route_set.reverse_select_routes path
+          glob_matches = s.route_set.reverse_select_routes path
 
           glob_matches.each do |glob_match|
-            if segment.match? glob_match.current_segment
-              if segment.parametric?
-                glob_match.routed_result[segment.parameter] = glob_match.current_segment
+            if s.match? glob_match.current_segment
+              if s.parametric?
+                glob_match.routed_result[s.parameter] = glob_match.current_segment
               end
 
               glob_match.match_position -= 1
               matches << glob_match
             end
           end
-
         end
       end
 
@@ -202,6 +197,5 @@ module Amber::Router
         segment
       end.compact
     end
-
   end
 end
