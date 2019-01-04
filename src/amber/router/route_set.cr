@@ -144,18 +144,18 @@ module Amber::Router
     protected def reverse_select_routes(path : Array(String)) : Array(GlobMatch(T))
       matches = [] of GlobMatch(T)
 
-      @segments.each do |s|
-        case s
+      @segments.each do |segment|
+        case segment
         when TerminalSegment
-          match = GlobMatch(T).new s, path
+          match = GlobMatch(T).new segment, path
           matches << match
         when FixedSegment, VariableSegment
-          glob_matches = s.route_set.reverse_select_routes path
+          glob_matches = segment.route_set.reverse_select_routes path
 
           glob_matches.each do |glob_match|
-            if s.match? glob_match.current_segment
-              if s.parametric?
-                glob_match.routed_result[s.parameter] = glob_match.current_segment
+            if segment.match? glob_match.current_segment
+              if segment.parametric?
+                glob_match.routed_result[segment.parameter] = glob_match.current_segment
               end
 
               glob_match.match_position -= 1
