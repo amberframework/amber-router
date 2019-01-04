@@ -20,7 +20,7 @@ describe "glob parameters" do
 
     result = router.find("/get/categories/hats/scarfs/mittens/gloves/products")
     result.params.should eq({
-      "categories" => "hats/scarfs/mittens/gloves",
+      "categories" => "hats/scarfs/mittens/gloves"
     })
   end
 
@@ -39,7 +39,7 @@ describe "glob parameters" do
     end
 
     router.find("/get/products/1").params.should eq({
-      "url" => "products/1",
+      "url" => "products/1"
     })
   end
 end

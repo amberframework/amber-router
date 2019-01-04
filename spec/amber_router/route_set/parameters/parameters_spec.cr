@@ -7,6 +7,6 @@ describe "parameters" do
     end
 
     result = router.find("/get/name/robert_paulson")
-    result.params.should eq({"name" => "robert_paulson"})
+    result.params.should eq({ "name" => "robert_paulson" })
   end
 end
