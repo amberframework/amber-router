@@ -4,6 +4,7 @@ install:
   - shards install
 
 script:
-  - bin/ameba
-  - crystal tool format --check
   - crystal spec
+  - crystal tool format --check
+  - bin/ameba
+
