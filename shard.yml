@@ -12,7 +12,3 @@ targets:
   benchmark:
     main: src/benchmark.cr
 
-development_dependencies:
-  ameba:
-    github: veelenga/ameba
-    version: ~> 0.8.1
