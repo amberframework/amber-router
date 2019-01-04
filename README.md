@@ -92,7 +92,7 @@ router: catchall route    2.2M (455.48ns) (± 1.13%)  896 B/op   1.66× slower
 globs with suffix match   1.18M (845.37ns) (± 1.27%)  1489 B/op  fastest
 
 Route Constraints
-  rroute with a valid constraint   1.84M (544.55ns) (± 1.11%)  912 B/op   1.31× slower
+route with a valid constraint   1.84M (544.55ns) (± 1.11%)  912 B/op   1.31× slower
 route with an invalid constraint   2.41M (414.72ns) (± 1.25%)  672 B/op        fastest
 ```
 
