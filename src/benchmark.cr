@@ -25,7 +25,7 @@ class Benchmarker
     }
 
     @amber_routes = {
-      "/put/products/*slug/dp/:id" => :amazon_style_url
+      "/put/products/*slug/dp/:id" => :amazon_style_url,
     }
 
     @amber_router = Amber::Router::RouteSet(Symbol).new
@@ -39,6 +39,9 @@ class Benchmarker
     @amber_routes.each do |k, v|
       amber_router.add k, v
     end
+
+    # Add a route with a requirement
+    amber_router.add "/get/test/:id", :requirement_path, {"id" => /foo_\d/}
   end
 
   def run_check(router, check, expected_result)
@@ -65,7 +68,6 @@ class Benchmarker
     end
 
     puts
-    puts
   end
 
   def compare_to_radix
@@ -82,6 +84,14 @@ class Benchmarker
     puts "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ"
     Benchmark.ips do |x|
       x.report("globs with suffix match") { run_check(amber_router, "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ", :amazon_style_url) }
+    end
+
+    puts
+
+    puts "Route Constraints"
+    Benchmark.ips do |x|
+      x.report("route with a valid constraint") { run_check(amber_router, "/get/test/foo_99", :requirement_path) }
+      x.report("route with an invalid constraint") { run_check(amber_router, "/get/test/foo_bar", nil) }
     end
   end
 end

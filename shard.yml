@@ -4,10 +4,11 @@ version: 0.2.0
 authors:
   - Robert L Carpenter <robert@robacarp.com>
 
-crystal: 0.26.0
+crystal: 0.27.0
 
 license: MIT
 
 targets:
   benchmark:
     main: src/benchmark.cr
+
