@@ -10,7 +10,6 @@ describe "matching more than once" do
     router1.find("/get/domains/mine").payload?.should eq :my_domains
     router1.find("/get/domains/32").payload?.should eq :a_domain
 
-
     router2 = build do
       add "/get/domains/:id", :a_domain
       add "/get/domains/mine", :my_domains
