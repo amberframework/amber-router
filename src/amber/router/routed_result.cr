@@ -24,11 +24,7 @@ module Amber::Router
     end
 
     def payload?
-      if found?
-        terminal_segment.route
-      else
-        nil
-      end
+      terminal_segment.route if found?
     end
 
     def payload

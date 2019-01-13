@@ -70,7 +70,7 @@ module Amber::Router
 
     # Add a route to the tree.
     def add(path, payload : T, constraints : Hash(Symbol, Regex) | NamedTuple) : Nil
-      add_route path, payload, constraints.to_h.transform_keys { |k| k.to_s }
+      add_route path, payload, constraints.to_h.transform_keys(&.to_s)
     end
 
     def parse_subpaths(path : String) : Array(String)

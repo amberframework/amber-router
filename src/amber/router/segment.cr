@@ -10,9 +10,7 @@ module Amber::Router
     def formatted_s(*, ts = 0)
       tab = "  " * ts
       String.build do |str|
-        str << "#{tab}|--#{segment}"
-
-        str << '\n'
+        str << "#{tab}|--#{segment}\n"
         if route_set.routes?
           str << route_set.formatted_s ts: ts + 1
         end

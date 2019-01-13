@@ -70,8 +70,7 @@ module Amber::Router::Parsers
     getter paths : Array(Array(String))
 
     def initialize(path : String)
-      @paths = [] of Array(String)
-      @paths = [self.segmentize path]
+      @paths = [segmentize path]
     end
 
     def self.resolve(path : String) : Array(String)
