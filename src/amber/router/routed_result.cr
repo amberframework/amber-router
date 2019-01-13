@@ -5,7 +5,7 @@ module Amber::Router
     def initialize(@terminal_segment : TerminalSegment(T)?)
     end
 
-    delegate :[], :[]=, to: @params
+    delegate :[]?, :[], :[]=, to: @params
 
     def terminal_segment
       @terminal_segment.not_nil!
