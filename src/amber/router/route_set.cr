@@ -188,8 +188,8 @@ module Amber::Router
 
     # Produces a readable, indented rendering of the tree
     def formatted_s(*, ts = 0)
-      @segments.reduce("") do |s, segment|
-        s + segment.formatted_s(ts: ts + 1)
+      @segments.reduce("") do |str, segment|
+        str + segment.formatted_s(ts: ts + 1)
       end
     end
 
