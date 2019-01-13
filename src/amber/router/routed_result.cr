@@ -52,7 +52,7 @@ module Amber::Router
     end
 
     def formatted_s(io : IO)
-      io << "RoutedResult("
+      io << "#<RoutedResult "
 
       if found?
         io << "found "
@@ -60,7 +60,7 @@ module Amber::Router
       else
         io << "not found"
       end
-      io << ')'
+      io << '>'
     end
   end
 end

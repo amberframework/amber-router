@@ -12,11 +12,11 @@ module Amber::Router
     end
 
     def inspect(io : IO)
-      io << "GlobMatch("
+      io << "#<GlobMatch "
       io << terminal_segment.full_path
       io << ", "
       io << path
-      io << ", #{match_position})"
+      io << ", #{match_position}>"
     end
 
     def to_s(io : IO)
