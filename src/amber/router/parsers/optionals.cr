@@ -132,11 +132,7 @@ module Amber::Router::Parsers
       end
 
       unless optional_end
-        carat_position = 0
-
-        path[0..optional_start].each do |s|
-          carat_position += s.size
-        end
+        carat_position = path[0..optional_start].sum(&.size)
 
         indent = "  "
 
