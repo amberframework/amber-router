@@ -37,7 +37,7 @@ module Amber::Router::Parsers
   #
   class OptionalSegmentResolver
     def self.necessary?(path : String) : Bool
-      path.includes? "(" || path.includes? ")"
+      path.includes?('(') || path.includes?(')')
     end
 
     # Converts a path url with parenthesis into a walkable array
@@ -51,12 +51,11 @@ module Amber::Router::Parsers
     #  ]
     protected def segmentize(path : String) : Array(String)
       current_segment = [] of String
-
       segments = [] of String
 
       path.split("").each do |c|
         if c == "(" || c == ")"
-          segments << current_segment.join "" unless current_segment.empty?
+          segments << current_segment.join unless current_segment.empty?
           segments << c
           current_segment.clear
         else
@@ -64,8 +63,7 @@ module Amber::Router::Parsers
         end
       end
 
-      segments << current_segment.join "" if current_segment.any?
-
+      segments << current_segment.join if current_segment.any?
       segments
     end
 
@@ -79,7 +77,7 @@ module Amber::Router::Parsers
     def self.resolve(path : String) : Array(String)
       instance = new path
       instance.resolve
-      instance.paths.map &.join("")
+      instance.paths.map &.join
     end
 
     # Iterates the path array until there are no more optionals to resolve,
@@ -89,7 +87,6 @@ module Amber::Router::Parsers
         index_of_path_with_optional = paths.index do |path|
           path.includes? "("
         end
-
         break unless index_of_path_with_optional
 
         new_paths = resolve_optional paths[index_of_path_with_optional]
@@ -143,15 +140,15 @@ module Amber::Router::Parsers
         indent = "  "
 
         message = String.build do |error|
-          error << "\n"
+          error << '\n'
           error << "Could not find matching close parenthesis:\n"
           error << indent
-          error << path.join("")
-          error << "\n"
+          error << path.join
+          error << '\n'
           error << indent
           error << "~" * (carat_position - 1)
-          error << "^"
-          error << "\n"
+          error << '^'
+          error << '\n'
         end
 
         raise message

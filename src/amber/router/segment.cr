@@ -15,7 +15,7 @@ module Amber::Router
       String.build do |s|
         s << "#{tab}|--#{segment}"
 
-        s << "\n"
+        s << '\n'
         if route_set.routes?
           s << route_set.formatted_s ts: ts + 1
         end
