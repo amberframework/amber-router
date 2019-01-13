@@ -37,10 +37,10 @@ module Amber::Router
       if subtree = find_subtree segment
         subtree
       else
-        case
-        when segment.starts_with? ':'
+        case segment
+        when .starts_with? ':'
           new_segment = VariableSegment(T).new(segment, constraints[segment.lchop(':')]?)
-        when segment.starts_with? '*'
+        when .starts_with? '*'
           new_segment = GlobSegment(T).new(segment)
         else
           new_segment = FixedSegment(T).new(segment)
@@ -176,10 +176,11 @@ module Amber::Router
       segments = split_path path
       matches = select_routes(segments)
 
-      if matches.size > 1
-        matches.sort.first
-      elsif matches.size == 0
+      case matches.size
+      when 0
         RoutedResult(T).new nil
+      when .> 1
+        matches.sort.first
       else
         matches.first
       end

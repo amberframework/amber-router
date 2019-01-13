@@ -116,9 +116,10 @@ module Amber::Router::Parsers
       while position < path.size
         segment = path[position]
 
-        if segment == "("
+        case segment
+        when "("
           open_optionals += 1
-        elsif segment == ")"
+        when ")"
           if open_optionals > 0
             open_optionals -= 1
           else
