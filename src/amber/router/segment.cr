@@ -1,8 +1,5 @@
 module Amber::Router
   abstract class Segment(T)
-    def self.type_for(segment : String)
-    end
-
     property route_set : RouteSet(T)
     property segment : String
 
