@@ -10,7 +10,7 @@ license: MIT
 
 targets:
   benchmark:
-    main: src/benchmark.cr
+    main: examples/benchmark.cr
 
 development_dependencies:
   ameba:

@@ -1,6 +1,6 @@
 require "benchmark"
 require "radix"
-require "./amber_router"
+require "../src/amber_router"
 
 class Benchmarker
   getter route_library
@@ -47,8 +47,8 @@ class Benchmarker
   def run_check(router, check, expected_result)
     result = router.find(check)
 
-    if expected_result.nil?
-      raise "returned a result when it shouldn't've" unless result.found? == false
+    unless expected_result
+      raise "Returned a result when it shouldn't have" if result.found?
       return
     end
 
@@ -83,15 +83,21 @@ class Benchmarker
   def benchmark_self
     puts "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ"
     Benchmark.ips do |x|
-      x.report("globs with suffix match") { run_check(amber_router, "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ", :amazon_style_url) }
+      x.report("globs with suffix match") do
+        run_check(amber_router, "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ", :amazon_style_url)
+      end
     end
 
     puts
 
-    puts "Route Constraints"
+    puts "Route constraints"
     Benchmark.ips do |x|
-      x.report("route with a valid constraint") { run_check(amber_router, "/get/test/foo_99", :requirement_path) }
-      x.report("route with an invalid constraint") { run_check(amber_router, "/get/test/foo_bar", nil) }
+      x.report("route with a valid constraint") do
+        run_check(amber_router, "/get/test/foo_99", :requirement_path)
+      end
+      x.report("route with an invalid constraint") do
+        run_check(amber_router, "/get/test/foo_bar", nil)
+      end
     end
   end
 end
