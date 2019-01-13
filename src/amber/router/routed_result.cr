@@ -20,7 +20,7 @@ module Amber::Router
     end
 
     def found?
-      !@terminal_segment.nil?
+      !!@terminal_segment
     end
 
     def payload?
