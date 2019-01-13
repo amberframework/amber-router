@@ -142,7 +142,7 @@ module Amber::Router::Parsers
 
         message = String.build do |error|
           error << '\n'
-          error << "Could not find matching close parenthesis:\n"
+          error << "Could not find matching closing parenthesis:\n"
           error << indent
           error << path.join
           error << '\n'
