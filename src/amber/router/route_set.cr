@@ -69,12 +69,7 @@ module Amber::Router
     end
 
     # Add a route to the tree.
-    def add(path, payload : T, constraints : Hash(Symbol, Regex)) : Nil
-      add_route path, payload, constraints.transform_keys { |k| k.to_s }
-    end
-
-    # Add a route to the tree.
-    def add(path, payload : T, constraints : NamedTuple) : Nil
+    def add(path, payload : T, constraints : Hash(Symbol, Regex) | NamedTuple) : Nil
       add_route path, payload, constraints.to_h.transform_keys { |k| k.to_s }
     end
 
