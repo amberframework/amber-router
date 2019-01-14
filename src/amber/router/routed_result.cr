@@ -60,7 +60,7 @@ module Amber::Router
       else
         io << "not found"
       end
-      io << ")"
+      io << ')'
     end
   end
 end

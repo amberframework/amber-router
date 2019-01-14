@@ -193,7 +193,7 @@ module Amber::Router
     end
 
     private def add_route(path, payload : T, constraints : Hash(String, Regex)) : Nil
-      if path.includes?("(") || path.includes?(")")
+      if path.includes?('(') || path.includes?(')')
         paths = parse_subpaths path
       else
         paths = [path]
@@ -210,7 +210,7 @@ module Amber::Router
     # Split a path by slashes, remove blanks, and compact the path array.
     # E.g. split_path("/a/b/c/d") => ["a", "b", "c", "d"]
     private def split_path(path : String) : Array(String)
-      path.split("/").map do |segment|
+      path.split('/').map do |segment|
         next nil if segment.blank?
         segment
       end.compact
