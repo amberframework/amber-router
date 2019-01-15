@@ -174,10 +174,10 @@ module Amber::Router
       case matches.size
       when 0
         RoutedResult(T).new nil
-      when .> 1
-        matches.sort.first
-      else
+      when 1
         matches.first
+      else
+        matches.sort.first
       end
     end
 
