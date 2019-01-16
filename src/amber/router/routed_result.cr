@@ -1,5 +1,7 @@
 module Amber::Router
   class RoutedResult(T)
+    include Comparable(RoutedResult)
+
     getter params = {} of String => String
 
     def initialize(@terminal_segment : TerminalSegment(T)?)
@@ -39,12 +41,8 @@ module Amber::Router
       end
     end
 
-    def <(other : RoutedResult(T))
-      priority < other.priority
-    end
-
-    def <=(other : RoutedResult(T))
-      priority <= other.priority
+    def <=>(other : RoutedResult)
+      priority <=> other.priority
     end
 
     def formatted_s(io : IO)
