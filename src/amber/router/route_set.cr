@@ -2,9 +2,9 @@ module Amber::Router
   # A tree which stores and navigates routes associated with a web application.
   #
   # A route set represents the branches of the tree, and each vertex
-  # is a Segment. Leaf nodes are TerminalSegments.
+  # is a `Segment`. Leaf nodes are `TerminalSegment`s.
   #
-  # ```crystal
+  # ```
   # route_set = Amber::Router::RouteSet(Symbol).new
   # route_set.add "/get/", :root
   # route_set.add "/get/users/:id", :users
@@ -68,7 +68,7 @@ module Amber::Router
       add_route path, payload, constraints
     end
 
-    # Add a route to the tree.
+    # ditto
     def add(path, payload : T, constraints : Hash(Symbol, Regex) | NamedTuple) : Nil
       add_route path, payload, constraints.to_h.transform_keys(&.to_s)
     end
@@ -131,14 +131,7 @@ module Amber::Router
     end
 
     # Recursively matches the right hand side of a glob segment.
-    # Allows for routes like /a/b/*/d/e and /a/b/*/f/g to coexist.
-    #
-    # Importantly, each subtree must pass back up the remaining part
-    # of the path so it can be matched against the parent, so this
-    # method somewhat awkwardly returns:
-    #
-    #   { array of potential matches, position in path array : Int32)
-    #
+    # Allows for routes like `/a/b/*/d/e` and `/a/b/*/f/g` to coexist.
     protected def reverse_select_routes(path : Array(String)) : Array(GlobMatch(T))
       matches = [] of GlobMatch(T)
 
@@ -181,7 +174,7 @@ module Amber::Router
       end
     end
 
-    # Produces a readable, indented rendering of the tree
+    # Produces a readable, indented rendering of the tree.
     def formatted_s(*, ts = 0)
       @segments.reduce("") do |str, segment|
         str + segment.formatted_s(ts: ts + 1)
@@ -204,7 +197,10 @@ module Amber::Router
     end
 
     # Split a path by slashes, remove blanks, and compact the path array.
-    # E.g. split_path("/a/b/c/d") => ["a", "b", "c", "d"]
+    #
+    # ```
+    # split_path("/a/b/c/d") # => ["a", "b", "c", "d"]
+    # ```
     private def split_path(path : String) : Array(String)
       path.split('/').compact_map do |segment|
         next nil if segment.blank?
