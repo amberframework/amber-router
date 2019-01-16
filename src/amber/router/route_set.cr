@@ -206,10 +206,10 @@ module Amber::Router
     # Split a path by slashes, remove blanks, and compact the path array.
     # E.g. split_path("/a/b/c/d") => ["a", "b", "c", "d"]
     private def split_path(path : String) : Array(String)
-      path.split('/').map do |segment|
+      path.split('/').compact_map do |segment|
         next nil if segment.blank?
         segment
-      end.compact
+      end
     end
   end
 end
