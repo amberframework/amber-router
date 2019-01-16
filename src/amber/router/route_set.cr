@@ -63,33 +63,6 @@ module Amber::Router
       end
     end
 
-    # Add a route to the tree.
-    def add(path, payload : T, constraints : Hash(String, Regex) = {} of String => Regex) : Nil
-      add_route path, payload, constraints
-    end
-
-    # ditto
-    def add(path, payload : T, constraints : Hash(Symbol, Regex) | NamedTuple) : Nil
-      add_route path, payload, constraints.to_h.transform_keys(&.to_s)
-    end
-
-    private def parse_subpaths(path : String) : Array(String)
-      Parsers::OptionalSegmentResolver.resolve path
-    end
-
-    # Recursively find or create subtrees matching a given path, and store the
-    # application route at the leaf.
-    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Hash(String, Regex)) : TerminalSegment(T)
-      unless url_segments.any?
-        segment = TerminalSegment(T).new(route, full_path)
-        @segments.push segment
-        return segment
-      end
-
-      segment = find_subtree! url_segments.shift, constraints
-      segment.route_set.add(url_segments, route, full_path, constraints)
-    end
-
     def routes? : Bool
       @segments.any?
     end
@@ -181,6 +154,10 @@ module Amber::Router
       end
     end
 
+    private def parse_subpaths(path : String) : Array(String)
+      Parsers::OptionalSegmentResolver.resolve path
+    end
+
     private def add_route(path, payload : T, constraints : Hash(String, Regex)) : Nil
       if path.includes?('(') || path.includes?(')')
         paths = parse_subpaths path
@@ -194,6 +171,29 @@ module Amber::Router
         terminal_segment.priority = @insert_count
         @insert_count += 1
       end
+    end
+
+    # Add a route to the tree.
+    def add(path, payload : T, constraints : Hash(String, Regex) = {} of String => Regex) : Nil
+      add_route path, payload, constraints
+    end
+
+    # ditto
+    def add(path, payload : T, constraints : Hash(Symbol, Regex) | NamedTuple) : Nil
+      add_route path, payload, constraints.to_h.transform_keys(&.to_s)
+    end
+
+    # Recursively find or create subtrees matching a given path, and store the
+    # application route at the leaf.
+    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Hash(String, Regex)) : TerminalSegment(T)
+      unless url_segments.any?
+        segment = TerminalSegment(T).new(route, full_path)
+        @segments.push segment
+        return segment
+      end
+
+      segment = find_subtree! url_segments.shift, constraints
+      segment.route_set.add(url_segments, route, full_path, constraints)
     end
 
     # Split a path by slashes, remove blanks, and compact the path array.
