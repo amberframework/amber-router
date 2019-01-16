@@ -1,20 +1,30 @@
-# Amber/Router
+# Amber/Router [![Build Status](https://travis-ci.org/amberframework/amber-router.svg?branch=master)](https://travis-ci.org/amberframework/amber-router) [![Latest Release](https://img.shields.io/github/release/amberframework/amber-router.svg)](https://github.com/amberframework/amber-router/releases)
 
-[![Build Status](https://travis-ci.org/amberframework/amber-router.svg?branch=master)](https://travis-ci.org/amberframework/amber-router) A tree based url router with a similar API interface to [radix](https://github.com/luislavena/radix).
+A tree based url router with a similar API interface to [radix](https://github.com/luislavena/radix).
+
+## Installation
+
+Add this to your application's `shard.yml`:
+
+```yaml
+dependencies:
+  amber_router:
+    github: amberframework/amber_router
+```
 
 ## Usage
 
 ```crystal
-require "./amber_router"
+require "amber_router"
 
 route_set = Amber::Router::RouteSet(Symbol).new
 route_set.add "/get/", :root
 
-# A : at the start of a segment indicates a named parameter
+# A `:` at the start of a segment indicates a named parameter
 route_set.add "/get/users/:id", :users
 route_set.add "/get/users/:id/books", :users_books
 
-# A * at the start of a segment indicates a glob parameter
+# A `*` at the start of a segment indicates a glob parameter
 route_set.add "/get/users/comments/*date_range"
 
 # Supports storing multiple named arguments at the same position
@@ -35,31 +45,30 @@ route_set.add "/get/*", :catch_all
 route_set.add "/get/posts/:page", :user_path, {"page" => /\d+/}
 route_set.add "/get/test/:id", :user_path, {"id" => /foo_\d/}
 
-router.find("/get/posts/1").found? # => true
-router.find("/get/posts/foo").found? # => false
+route_set.find("/get/posts/1").found? # => true
+route_set.find("/get/posts/foo").found? # => false
 
-router.find("/get/test/foo_7").found? # => true
-router.find("/get/test/foo_").found? # => false
-
+route_set.find("/get/test/foo_7").found? # => true
+route_set.find("/get/test/foo_").found? # => false
 
 # Finding routes from a payload:
 route_set.find("/get/users/3").payload # => :users
 route_set.find("/get/users/3/books").payload # => :users_books
-route_set.find("/get/books/3").payload #=> :book
+route_set.find("/get/books/3").payload # => :book
 
-# RoutingResults return payload and named parameters
+# `RoutedResult` returns payload and named parameters
 result = route_set.find("/get/posts/my_trip_to_kansas/comments")
-result.terminal_segment.full_path
-result.found? #=> true
-result.params #=> { "post_name" => "my_trip_to_kansas" }
+result.found? # => true
+result.params # => {"post_name" => "my_trip_to_kansas"}
 ```
 
 ## Performance
 
-`crystal run src/benchmark.cr --release` produces a comparison of this router and [radix](https://github.com/luislavena/radix). As of now, this is the comparison:
+`crystal run examples/benchmark.cr --release` produces a comparison of this router and [radix](https://github.com/luislavena/radix). As of now, this is the comparison:
 
-```Text
-> crystal run src/benchmark.cr --release
+```text
+$ crystal run examples/benchmark.cr --release
+
 /get/
 router: root   3.63M (275.23ns) (± 5.58%)  546 B/op   1.44× slower
  radix: root   5.25M (190.49ns) (± 4.07%)  320 B/op        fastest
@@ -98,4 +107,4 @@ route with an invalid constraint   2.41M (414.72ns) (± 1.25%)  672 B/op        
 
 ## Contributing
 
-Contributions are welcome. Please fork the repository, commit changes on a branch, and then open a pull request. Please include the output of `src/benchmark.cr` as an update to this readme.
+Contributions are welcome. Please fork the repository, commit changes on a branch, and then open a pull request. Please include the output of `examples/benchmark.cr` as an update to this readme.
