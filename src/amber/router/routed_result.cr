@@ -14,7 +14,7 @@ module Amber::Router
     end
 
     def path
-      if @terminal_segment
+      if found?
         terminal_segment.full_path
       else
         raise "Cannot provide route path when no route was found. Ask first with #found?"
