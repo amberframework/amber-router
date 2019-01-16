@@ -1,14 +1,16 @@
 require "benchmark"
+require "colorize"
 require "radix"
 require "../src/amber_router"
 
 class Benchmarker
-  getter route_library
-  getter route_checks
   getter amber_router
   getter radix_router
 
   def initialize
+    @amber_router = Amber::Router::RouteSet(Symbol).new
+    @radix_router = Radix::Tree(Symbol).new
+
     @shared_routes = {
       "/get/"                                                                               => :root,
       "/get/users/:id"                                                                      => :users,
@@ -24,27 +26,23 @@ class Benchmarker
       "/post/*"                                                                             => :catchall,
     }
 
-    @amber_routes = {
-      "/put/products/*slug/dp/:id" => :amazon_style_url,
-    }
-
-    @amber_router = Amber::Router::RouteSet(Symbol).new
-    @radix_router = Radix::Tree(Symbol).new
-
     @shared_routes.each do |k, v|
+      amber_router.add k, v
       radix_router.add k, v
-      amber_router.add k, v
     end
 
-    @amber_routes.each do |k, v|
-      amber_router.add k, v
-    end
-
-    # Add a route with a requirement
-    amber_router.add "/get/test/:id", :requirement_path, {"id" => /foo_\d/}
+    @shared_test_paths = {
+      {"root", "/get/", :root},
+      {"deep", "/get/books/23/chapters", :book_chapters},
+      {"wrong", "/get/books/23/pages", nil},
+      {"many segments", "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z", :alphabet},
+      {"many variables", "/get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6", :variable_alphabet},
+      {"long segments", "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3", :foobar_bat},
+      {"catchall route", "/post/products/23/reviews/", :catchall},
+    }
   end
 
-  def run_check(router, check, expected_result)
+  private def run_check(router, check, expected_result)
     result = router.find(check)
 
     unless expected_result
@@ -54,43 +52,49 @@ class Benchmarker
 
     actual_result = result.payload
 
-    if actual_result != expected_result
+    unless actual_result == expected_result
       raise "#{router.class} #{actual_result.inspect} did not match #{expected_result}"
     end
   end
 
-  def compare(name : String, route : String, result : Symbol?)
-    puts route
+  private def compare(name : String, route : String, result : Symbol?)
+    puts route.colorize(:white).bold
 
     Benchmark.ips do |x|
-      x.report("router: #{name}") { run_check(amber_router, route, result) }
-      x.report("radix: #{name}") { run_check(radix_router, route, result) }
+      x.report("amber_router: #{name.colorize(:light_green)}") do
+        run_check(amber_router, route, result)
+      end
+      x.report("radix: #{name.colorize(:light_green)}") do
+        run_check(radix_router, route, result)
+      end
     end
 
     puts
   end
 
   def compare_to_radix
-    compare "root", "/get/", :root
-    compare "deep", "/get/books/23/chapters", :book_chapters
-    compare "wrong", "/get/books/23/pages", nil
-    compare "many segments", "/get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z", :alphabet
-    compare "many variables", "/get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6", :variable_alphabet
-    compare "long_segments", "/get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3", :foobar_bat
-    compare "catchall route", "/post/products/23/reviews/", :catchall
+    @shared_test_paths.each do |(desc, path, payload)|
+      compare desc, path, payload
+    end
   end
 
   def benchmark_self
-    puts "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ"
+    amber_router.add "/put/products/*slug/dp/:id", :amazon_style_url
+
+    amazon_style_url = "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ"
+    puts amazon_style_url.colorize(:white).bold
     Benchmark.ips do |x|
       x.report("globs with suffix match") do
-        run_check(amber_router, "/put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ", :amazon_style_url)
+        run_check(amber_router, amazon_style_url, :amazon_style_url)
       end
     end
 
     puts
 
-    puts "Route constraints"
+    # Add a route with a requirement
+    amber_router.add "/get/test/:id", :requirement_path, {:id => /foo_\d/}
+
+    puts "Route constraints".colorize(:yellow).bold
     Benchmark.ips do |x|
       x.report("route with a valid constraint") do
         run_check(amber_router, "/get/test/foo_99", :requirement_path)
