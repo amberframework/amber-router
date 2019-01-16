@@ -73,7 +73,7 @@ module Amber::Router
       add_route path, payload, constraints.to_h.transform_keys(&.to_s)
     end
 
-    def parse_subpaths(path : String) : Array(String)
+    private def parse_subpaths(path : String) : Array(String)
       Parsers::OptionalSegmentResolver.resolve path
     end
 
