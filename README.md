@@ -9,7 +9,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   amber_router:
-    github: amberframework/amber_router
+    github: amberframework/amber-router
 ```
 
 ## Usage
