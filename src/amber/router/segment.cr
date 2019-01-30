@@ -1,8 +1,5 @@
 module Amber::Router
   abstract class Segment(T)
-    def self.type_for(segment : String)
-    end
-
     property route_set : RouteSet(T)
     property segment : String
 
@@ -12,12 +9,10 @@ module Amber::Router
 
     def formatted_s(*, ts = 0)
       tab = "  " * ts
-      String.build do |s|
-        s << "#{tab}|--#{segment}"
-
-        s << '\n'
+      String.build do |str|
+        str << "#{tab}|--#{segment}\n"
         if route_set.routes?
-          s << route_set.formatted_s ts: ts + 1
+          str << route_set.formatted_s ts: ts + 1
         end
       end
     end

@@ -2,9 +2,9 @@ module Amber::Router
   # A tree which stores and navigates routes associated with a web application.
   #
   # A route set represents the branches of the tree, and each vertex
-  # is a Segment. Leaf nodes are TerminalSegments.
+  # is a `Segment`. Leaf nodes are `TerminalSegment`s.
   #
-  # ```crystal
+  # ```
   # route_set = Amber::Router::RouteSet(Symbol).new
   # route_set.add "/get/", :root
   # route_set.add "/get/users/:id", :users
@@ -37,10 +37,10 @@ module Amber::Router
       if subtree = find_subtree segment
         subtree
       else
-        case
-        when segment.starts_with? ':'
+        case segment
+        when .starts_with? ':'
           new_segment = VariableSegment(T).new(segment, constraints[segment.lchop(':')]?)
-        when segment.starts_with? '*'
+        when .starts_with? '*'
           new_segment = GlobSegment(T).new(segment)
         else
           new_segment = FixedSegment(T).new(segment)
@@ -61,38 +61,6 @@ module Amber::Router
           next
         end
       end
-    end
-
-    # Add a route to the tree.
-    def add(path, payload : T, constraints : Hash(String, Regex) = {} of String => Regex) : Nil
-      add_route path, payload, constraints
-    end
-
-    # Add a route to the tree.
-    def add(path, payload : T, constraints : Hash(Symbol, Regex)) : Nil
-      add_route path, payload, constraints.transform_keys { |k| k.to_s }
-    end
-
-    # Add a route to the tree.
-    def add(path, payload : T, constraints : NamedTuple) : Nil
-      add_route path, payload, constraints.to_h.transform_keys { |k| k.to_s }
-    end
-
-    def parse_subpaths(path : String) : Array(String)
-      Parsers::OptionalSegmentResolver.resolve path
-    end
-
-    # Recursively find or create subtrees matching a given path, and store the
-    # application route at the leaf.
-    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Hash(String, Regex)) : TerminalSegment(T)
-      unless url_segments.any?
-        segment = TerminalSegment(T).new(route, full_path)
-        @segments.push segment
-        return segment
-      end
-
-      segment = find_subtree! url_segments.shift, constraints
-      segment.route_set.add(url_segments, route, full_path, constraints)
     end
 
     def routes? : Bool
@@ -136,14 +104,7 @@ module Amber::Router
     end
 
     # Recursively matches the right hand side of a glob segment.
-    # Allows for routes like /a/b/*/d/e and /a/b/*/f/g to coexist.
-    #
-    # Importantly, each subtree must pass back up the remaining part
-    # of the path so it can be matched against the parent, so this
-    # method somewhat awkwardly returns:
-    #
-    #   { array of potential matches, position in path array : Int32)
-    #
+    # Allows for routes like `/a/b/*/d/e` and `/a/b/*/f/g` to coexist.
     protected def reverse_select_routes(path : Array(String)) : Array(GlobMatch(T))
       matches = [] of GlobMatch(T)
 
@@ -176,20 +137,25 @@ module Amber::Router
       segments = split_path path
       matches = select_routes(segments)
 
-      if matches.size > 1
-        matches.sort.first
-      elsif matches.size == 0
+      case matches.size
+      when 0
         RoutedResult(T).new nil
-      else
+      when 1
         matches.first
+      else
+        matches.sort.first
       end
     end
 
-    # Produces a readable, indented rendering of the tree
+    # Produces a readable, indented rendering of the tree.
     def formatted_s(*, ts = 0)
-      @segments.reduce("") do |s, segment|
-        s + segment.formatted_s(ts: ts + 1)
+      @segments.reduce("") do |str, segment|
+        str + segment.formatted_s(ts: ts + 1)
       end
+    end
+
+    private def parse_subpaths(path : String) : Array(String)
+      Parsers::OptionalSegmentResolver.resolve path
     end
 
     private def add_route(path, payload : T, constraints : Hash(String, Regex)) : Nil
@@ -207,13 +173,39 @@ module Amber::Router
       end
     end
 
+    # Add a route to the tree.
+    def add(path, payload : T, constraints : Hash(String, Regex) = {} of String => Regex) : Nil
+      add_route path, payload, constraints
+    end
+
+    # ditto
+    def add(path, payload : T, constraints : Hash(Symbol, Regex) | NamedTuple) : Nil
+      add_route path, payload, constraints.to_h.transform_keys(&.to_s)
+    end
+
+    # Recursively find or create subtrees matching a given path, and store the
+    # application route at the leaf.
+    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Hash(String, Regex)) : TerminalSegment(T)
+      unless url_segments.any?
+        segment = TerminalSegment(T).new(route, full_path)
+        @segments.push segment
+        return segment
+      end
+
+      segment = find_subtree! url_segments.shift, constraints
+      segment.route_set.add(url_segments, route, full_path, constraints)
+    end
+
     # Split a path by slashes, remove blanks, and compact the path array.
-    # E.g. split_path("/a/b/c/d") => ["a", "b", "c", "d"]
+    #
+    # ```
+    # split_path("/a/b/c/d") # => ["a", "b", "c", "d"]
+    # ```
     private def split_path(path : String) : Array(String)
-      path.split('/').map do |segment|
+      path.split('/').compact_map do |segment|
         next nil if segment.blank?
         segment
-      end.compact
+      end
     end
   end
 end

@@ -1,4 +1,4 @@
-require "./amber_router"
+require "../src/amber_router"
 
 class RouteSetDemonstration
   property route_set
@@ -27,7 +27,7 @@ class RouteSetDemonstration
   def find_and_check(url, expected_payload)
     puts "Routing `#{url}`"
     result = route_set.find(url)
-    puts result.found? ? "Found #{result.payload}" : "No Route"
+    puts result.found? ? "Found `#{result.payload}`" : "No route"
 
     if result.params.any?
       puts "Params:"
@@ -39,11 +39,12 @@ class RouteSetDemonstration
 end
 
 RouteSetDemonstration.new.tap do |rsd|
-  puts "="*80
+  puts
+  puts "=" * 80
   puts "Rendering of route tree:"
-  puts "="*80
+  puts "=" * 80
   puts rsd.route_set.formatted_s
-  puts "="*80
+  puts "=" * 80
   puts
   puts
   rsd.find_and_check "/get/books/23/chapters", :book_chapters

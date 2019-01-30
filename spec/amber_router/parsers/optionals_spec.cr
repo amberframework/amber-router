@@ -46,7 +46,7 @@ describe "resolving optional segments in paths" do
   it "raises on mismatched parenthesis" do
     path = "/users/(:id"
 
-    expect_raises Exception, /Could not find matching close parenthesis:/ do
+    expect_raises Exception, /Could not find matching closing parenthesis:/ do
       Amber::Router::Parsers::OptionalSegmentResolver.resolve(path)
     end
   end

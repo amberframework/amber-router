@@ -1,18 +1,20 @@
 module Amber::Router
   class RoutedResult(T)
+    include Comparable(RoutedResult)
+
     getter params = {} of String => String
 
     def initialize(@terminal_segment : TerminalSegment(T)?)
     end
 
-    delegate :[], :[]=, to: @params
+    delegate :[]?, :[], :[]=, to: @params
 
     def terminal_segment
       @terminal_segment.not_nil!
     end
 
     def path
-      if @terminal_segment
+      if found?
         terminal_segment.full_path
       else
         raise "Cannot provide route path when no route was found. Ask first with #found?"
@@ -24,11 +26,7 @@ module Amber::Router
     end
 
     def payload?
-      if found?
-        terminal_segment.route
-      else
-        nil
-      end
+      terminal_segment.route if found?
     end
 
     def payload
@@ -43,16 +41,12 @@ module Amber::Router
       end
     end
 
-    def <(other : RoutedResult(T))
-      priority < other.priority
-    end
-
-    def <=(other : RoutedResult(T))
-      priority <= other.priority
+    def <=>(other : RoutedResult)
+      priority <=> other.priority
     end
 
     def formatted_s(io : IO)
-      io << "RoutedResult("
+      io << "#<RoutedResult "
 
       if found?
         io << "found "
@@ -60,7 +54,7 @@ module Amber::Router
       else
         io << "not found"
       end
-      io << ')'
+      io << '>'
     end
   end
 end
