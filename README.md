@@ -45,6 +45,10 @@ route_set.add "/get/*", :catch_all
 route_set.add "/get/posts/:page", :user_path, {"page" => /\d+/}
 route_set.add "/get/test/:id", :user_path, {"id" => /foo_\d/}
 
+# Supports named based argument constraints
+route_set.add "/get/posts/:page", :user_path, {"page" => :ascii}
+route_set.add "/get/test/:id", :user_path, {"id" => :integer}
+
 route_set.find("/get/posts/1").found? # => true
 route_set.find("/get/posts/foo").found? # => false
 
