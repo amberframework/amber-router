@@ -41,6 +41,15 @@ describe "routes with variables" do
   it "routes with constraints" do
     router = build do
       # With symbol hash
+      add "/get/int/:page_num", :page_num, {:page_num => :integer}
+
+      # With symbol hash
+      add "/get/string/:page_name", :page_name, {:page_name => :ascii}
+
+      # With symbol hash
+      add "/get/uuid/:page_id", :page_id, {:page_id => :uuid}
+
+      # With symbol hash
       add "/get/posts/:page", :user_path, {:page => /\d+/}
 
       # With string hash
@@ -49,6 +58,15 @@ describe "routes with variables" do
       # with named tuple
       add "/get/time/:id", :user_path, {id: /\d:\d:\d/}
     end
+
+    router.find("/get/int/1").found?.should be_true
+    router.find("/get/int/foo").found?.should be_false
+
+    router.find("/get/string/foo").found?.should be_true
+    router.find("/get/string/☃︎").found?.should be_false
+
+    router.find("/get/uuid/87b3042b-9b9a-41b7-8b15-a93d3f17025e").found?.should be_true
+    router.find("/get/uuid/foo").found?.should be_false
 
     router.find("/get/posts/1").found?.should be_true
     router.find("/get/posts/foo").found?.should be_false
