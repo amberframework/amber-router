@@ -40,13 +40,9 @@ describe "routes with variables" do
 
   it "routes with constraints" do
     router = build do
-      # With symbol hash
+      # With named matcher
       add "/get/int/:page_num", :page_num, {:page_num => :integer}
-
-      # With symbol hash
       add "/get/string/:page_name", :page_name, {:page_name => :ascii}
-
-      # With symbol hash
       add "/get/uuid/:page_id", :page_id, {:page_id => :uuid}
 
       # With symbol hash
