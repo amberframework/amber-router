@@ -24,6 +24,8 @@ module Amber::Router
   # route_set.find("/get/posts/one").found? # => false
   # ```
   class RouteSet(T)
+    alias Constraints = Hash(String, Regex | Symbol)
+
     @trunk : RouteSet(T)?
     @route : T?
     @segments = [] of Segment(T) | TerminalSegment(T)
@@ -33,7 +35,7 @@ module Amber::Router
     end
 
     # Look for or create a subtree matching a given segment.
-    private def find_subtree!(segment : String, constraints : Hash(String, Regex | Symbol)) : Segment(T)
+    private def find_subtree!(segment : String, constraints : Constraints) : Segment(T)
       if subtree = find_subtree segment
         subtree
       else
@@ -158,7 +160,7 @@ module Amber::Router
       Parsers::OptionalSegmentResolver.resolve path
     end
 
-    private def add_route(path, payload : T, constraints : Hash(String, Regex | Symbol)) : Nil
+    private def add_route(path, payload : T, constraints : Constraints) : Nil
       if path.includes?('(') || path.includes?(')')
         paths = parse_subpaths path
       else
@@ -174,7 +176,7 @@ module Amber::Router
     end
 
     # Add a route to the tree.
-    def add(path, payload : T, constraints : Hash(String, Regex | Symbol) = {} of String => Regex) : Nil
+    def add(path, payload : T, constraints : Constraints = Constraints.new) : Nil
       add_route path, payload, constraints
     end
 
@@ -185,7 +187,7 @@ module Amber::Router
 
     # Recursively find or create subtrees matching a given path, and store the
     # application route at the leaf.
-    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Hash(String, Regex | Symbol)) : TerminalSegment(T)
+    protected def add(url_segments : Array(String), route : T, full_path : String, constraints : Constraints) : TerminalSegment(T)
       unless url_segments.any?
         segment = TerminalSegment(T).new(route, full_path)
         @segments.push segment
