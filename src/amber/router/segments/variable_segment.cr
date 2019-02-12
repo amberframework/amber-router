@@ -39,7 +39,7 @@ module Amber::Router
       return false if segment.bytesize != 36
       {8, 13, 18, 23}.each { |offset| return false if segment[offset] != '-' }
       {0, 2, 4, 6, 9, 11, 14, 16, 19, 21, 24, 26, 28, 30, 32, 34}.each do |offset|
-        return false unless (ch1 = segment[offset].to_u8?(16)) && (ch2 = segment[offset + 1].to_u8?(16))
+        return false unless (segment[offset].to_u8?(16)) && (segment[offset + 1].to_u8?(16))
       end
       true
     end
