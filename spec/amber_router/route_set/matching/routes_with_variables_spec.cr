@@ -58,8 +58,8 @@ describe "routes with variables" do
     router.find("/get/int/1").found?.should be_true
     router.find("/get/int/foo").found?.should be_false
 
-    router.find("/get/string/foo").found?.should be_true
-    router.find("/get/string/☃︎").found?.should be_false
+    router.find("/get/ascii/foo").found?.should be_true
+    router.find("/get/ascii/☃︎").found?.should be_false
 
     router.find("/get/uuid/87b3042b-9b9a-41b7-8b15-a93d3f17025e").found?.should be_true
     router.find("/get/uuid/foo").found?.should be_false
