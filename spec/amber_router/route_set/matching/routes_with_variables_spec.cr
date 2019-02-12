@@ -42,7 +42,7 @@ describe "routes with variables" do
     router = build do
       # With named matcher
       add "/get/int/:page_num", :page_num, {:page_num => :integer}
-      add "/get/string/:page_name", :page_name, {:page_name => :ascii}
+      add "/get/ascii/:page_name", :page_name, {:page_name => :ascii}
       add "/get/uuid/:page_id", :page_id, {:page_id => :uuid}
 
       # With symbol hash
