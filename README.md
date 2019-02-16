@@ -30,7 +30,6 @@ route_set.add "get/curly/{named_param}", :curly_param
 # Which would be equivalent to
 route_set.add "get/colon/:named_param", :named_param
 
-
 # A `*` at the start of a segment indicates a glob parameter
 route_set.add "/get/users/comments/*date_range"
 
