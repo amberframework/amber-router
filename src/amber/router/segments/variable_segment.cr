@@ -17,7 +17,11 @@ module Amber::Router
     end
 
     def parameter : String
-      segment[1..-1]
+      if segment.starts_with?('{') && segment.ends_with?('}')
+        segment.lchop('{').rchop('}')
+      else
+        segment.lchop(':')
+      end
     end
   end
 end

@@ -59,4 +59,29 @@ describe "routes with variables" do
     router.find("/get/test/foo_7").found?.should be_true
     router.find("/get/test/foo_").found?.should be_false
   end
+
+  it "routes with curly brace variables" do
+    router = build do
+      add "/curly/{id}", :simple
+      add "/curly/user/{user_id}", :constraint, {"user_id" => /foo_\d/}
+      add "/curly/var/{b}/{c}/{d}/{e}/{f}/{g}/{h}/{i}/{j}/{k}/{l}/{m}/{n}/{o}/{p}/{q}/{r}/{s}/{t}/{u}/{v}/{w}/{x}/{y}/{z}", :variable_alphabet
+    end
+
+    simple_route = router.find("/curly/123")
+    simple_route.found?.should be_true
+    simple_route.payload?.should eq :simple
+    simple_route.params["id"].should eq "123"
+
+    constraint_route = router.find("/curly/user/123")
+    constraint_route.found?.should be_false
+
+    constraint_route = router.find("/curly/user/foo_123")
+    constraint_route.found?.should be_true
+    constraint_route.payload?.should eq :constraint
+    constraint_route.params["user_id"].should eq "foo_123"
+
+    long_route = router.find("/curly/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6")
+    long_route.found?.should be_true
+    long_route.payload?.should eq :variable_alphabet
+  end
 end

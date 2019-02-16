@@ -94,13 +94,25 @@ class Benchmarker
     # Add a route with a requirement
     amber_router.add "/get/test/:id", :requirement_path, {:id => /foo_\d/}
 
-    puts "Route constraints".colorize(:yellow).bold
+    puts "Route constraints".colorize(:white).bold
     Benchmark.ips do |x|
       x.report("route with a valid constraint") do
         run_check(amber_router, "/get/test/foo_99", :requirement_path)
       end
       x.report("route with an invalid constraint") do
         run_check(amber_router, "/get/test/foo_bar", nil)
+      end
+    end
+
+    puts
+
+    # Add a route with a curly param
+    amber_router.add "/get/curly/{id}", :curly_path
+
+    puts "Curly params".colorize(:white).bold
+    Benchmark.ips do |x|
+      x.report("matches correctly") do
+        run_check(amber_router, "/get/curly/foo_99", :curly_path)
       end
     end
   end
