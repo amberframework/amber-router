@@ -74,39 +74,39 @@ result.params # => {"post_name" => "my_trip_to_kansas"}
 $ crystal run examples/benchmark.cr --release
 
 /get/
-amber_router: root   3.63M (275.23ns) (± 5.58%)  546 B/op   1.44× slower
-       radix: root   5.25M (190.49ns) (± 4.07%)  320 B/op        fastest
+amber_router: root   4.90M (203.95ns) (± 2.77%)  385B/op   1.16× slower
+       radix: root   5.70M (175.37ns) (± 3.84%)  224B/op        fastest
 
 /get/books/23/chapters
-amber_router: deep   1.73M (578.29ns) (± 4.25%)  1040 B/op        fastest
-       radix: deep   1.54M ( 647.9ns) (± 5.46%)   592 B/op   1.12× slower
+amber_router: deep   1.75M (571.75ns) (± 4.36%)  915B/op        fastest
+       radix: deep   1.50M (668.47ns) (± 4.31%)  544B/op   1.17× slower
 
 /get/books/23/pages
-amber_router: wrong   2.46M (406.07ns) (± 1.50%)  768 B/op        fastest
-       radix: wrong   1.85M ( 541.1ns) (± 2.09%)  513 B/op   1.33× slower
+amber_router: wrong   2.64M (378.30ns) (± 5.51%)  593B/op        fastest
+       radix: wrong   1.74M (573.41ns) (± 2.84%)  464B/op   1.52× slower
 
 /get/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z
-amber_router: many segments 475.73k (   2.1µs) (± 3.78%)  4498 B/op   4.31× slower
-       radix: many segments   2.05M (488.09ns) (± 1.28%)   448 B/op        fastest
+amber_router: many segments 501.49k (  1.99µs) (± 2.83%)  4.03kB/op   4.01× slower
+       radix: many segments   2.01M (496.78ns) (± 3.32%)    353B/op        fastest
 
 /get/var/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6/7/8/9/0/1/2/3/4/5/6
-amber_router: many variables 276.63k (  3.61µs) (± 4.65%)  6517 B/op   1.44× slower
-       radix: many variables 397.75k (  2.51µs) (± 1.67%)  2853 B/op        fastest
+amber_router: many variables 314.33k (  3.18µs) (± 3.33%)  6.05kB/op   1.41× slower
+       radix: many variables 442.56k (  2.26µs) (± 2.14%)  2.73kB/op        fastest
 
 /get/foobarbizfoobarbizfoobarbizfoobarbizfoobarbizbat/3
-amber_router: long segments   1.83M (546.36ns) (± 2.03%)  912 B/op        fastest
-       radix: long segments   1.19M ( 842.9ns) (± 1.46%)  624 B/op   1.54× slower
+amber_router: long segments   1.95M (512.99ns) (± 2.24%)  786B/op        fastest
+       radix: long segments   1.12M (891.73ns) (± 2.41%)  576B/op   1.74× slower
 
 /post/products/23/reviews/
-amber_router: catchall route    2.2M (455.48ns) (± 1.13%)  896 B/op   1.66× slower
-       radix: catchall route   3.65M (274.33ns) (± 4.71%)  449 B/op        fastest
+amber_router: catchall route   2.52M (396.60ns) (± 4.75%)  704B/op   1.49× slower
+       radix: catchall route   3.75M (266.85ns) (± 1.80%)  401B/op        fastest
 
 /put/products/Winter-Windproof-Trapper-Hat/dp/B01J7DAMCQ
-globs with suffix match   1.18M (845.37ns) (± 1.27%)  1489 B/op  fastest
+globs with suffix match   1.33M (749.41ns) (± 1.85%)  1.25kB/op  fastest
 
 Route constraints
-   route with a valid constraint 1.84M (544.55ns) (± 1.11%)  912 B/op   1.31× slower
-route with an invalid constraint 2.41M (414.72ns) (± 1.25%)  672 B/op        fastest
+   route with a valid constraint   1.88M (531.64ns) (± 1.56%)  786B/op   1.43× slower
+route with an invalid constraint   2.68M (372.50ns) (± 2.22%)  497B/op        fastest
 ```
 
 ## Contributing
