@@ -1,3 +1,17 @@
+2020-02-02  v0.4.1 - `find_routes` method
+
+Changes
+  * Updates ameba to `0.11.0`
+
+Features
+  * Add method to return an array of routes that match the provided path
+
+2019-08-06  v0.4.0 - Organizational changes
+
+Changes
+  * Change file structure to be `src/amber_router` instead of `src/amber/router`.
+  * Update ameba and benchmarks for Crystal `0.31.0`
+
 2019-04-18  v0.3.0 - Update for Crystal 0.28.0
 
 Changes

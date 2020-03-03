@@ -1,5 +1,5 @@
 name: amber_router
-version: 0.4.0
+version: 0.4.1
 
 authors:
   - Robert L Carpenter <robert@robacarp.com>
@@ -7,7 +7,7 @@ authors:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.10.0
+    version: ~> 0.11.0
   radix:
     github: luislavena/radix
 
