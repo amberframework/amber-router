@@ -147,6 +147,11 @@ module Amber::Router
       end
     end
 
+    # Returns the routes which are compatible with the provided *path*.
+    def find_routes(path : String) : Array(RoutedResult(T))
+      select_routes split_path path
+    end
+
     # Produces a readable, indented rendering of the tree.
     def formatted_s(*, ts = 0)
       @segments.reduce("") do |str, segment|

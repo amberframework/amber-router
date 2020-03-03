@@ -51,6 +51,15 @@ route_set.find("/get/posts/foo").found? # => false
 route_set.find("/get/test/foo_7").found? # => true
 route_set.find("/get/test/foo_").found? # => false
 
+# Supports returning an array of matches.
+# Allows using custom logic based on each route's payload
+# to determine if a match could be found
+route_set.add "/user/:id", :user_get
+route_set.add "/user/:id", :user_delete
+route_set.add "/user/:id/posts", :user_posts_get
+
+route_set.find_routes("/user/10").map &.payload? # => [:user_get, :user_delete]
+
 # Finding routes from a payload:
 route_set.find("/get/users/3").payload # => :users
 route_set.find("/get/users/3/books").payload # => :users_books
