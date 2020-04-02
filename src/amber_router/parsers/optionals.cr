@@ -128,6 +128,8 @@ module Amber::Router::Parsers
             optional_end = position
             break
           end
+        else
+          # skip
         end
 
         position += 1

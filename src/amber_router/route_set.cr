@@ -59,6 +59,8 @@ module Amber::Router
           break segment if segment.literal_match? url_segment
         when TerminalSegment(T)
           next
+        else
+          # go on
         end
       end
     end
@@ -97,6 +99,8 @@ module Amber::Router
 
             matches << glob_match.routed_result
           end
+        else
+          # go on
         end
       end
 
@@ -126,6 +130,8 @@ module Amber::Router
               matches << glob_match
             end
           end
+        else
+          # go on
         end
       end
 
