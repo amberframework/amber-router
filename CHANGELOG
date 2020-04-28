@@ -1,3 +1,9 @@
+2020-04-27  v0.4.2 - Updates for Crystal 0.34.0
+
+Changes
+  * Comply exhaustive case check
+  * Updates ameba to `0.12.0`
+
 2020-02-02  v0.4.1 - `find_routes` method
 
 Changes
