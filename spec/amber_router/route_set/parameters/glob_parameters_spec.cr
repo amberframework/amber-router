@@ -42,4 +42,13 @@ describe "glob parameters" do
       "url" => "products/1",
     })
   end
+
+  it "URI decodes the parameters" do
+    router = build do
+      add "/get/categories/*categories/products", :categories_products
+    end
+
+    result = router.find "/get/categories/hats/scarfs%20&%20mittens/products"
+    result.params.should eq({"categories" => "hats/scarfs & mittens"})
+  end
 end

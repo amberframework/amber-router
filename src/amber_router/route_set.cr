@@ -1,3 +1,5 @@
+require "uri"
+
 module Amber::Router
   # A tree which stores and navigates routes associated with a web application.
   #
@@ -86,7 +88,7 @@ module Amber::Router
 
           matched_routes = segment.route_set.select_routes(path, path_offset + 1)
           matched_routes.each do |matched_route|
-            matched_route[segment.parameter] = path[path_offset] if segment.parametric?
+            matched_route[segment.parameter] = URI.decode path[path_offset] if segment.parametric?
             matches << matched_route
           end
         when GlobSegment(T)
@@ -94,7 +96,7 @@ module Amber::Router
 
           glob_matches.each do |glob_match|
             if segment.parametric?
-              glob_match.routed_result[segment.parameter] = path[path_offset..glob_match.match_position].join('/')
+              glob_match.routed_result[segment.parameter] = URI.decode path[path_offset..glob_match.match_position].join('/')
             end
 
             matches << glob_match.routed_result
@@ -123,6 +125,7 @@ module Amber::Router
           glob_matches.each do |glob_match|
             if segment.match? glob_match.current_segment
               if segment.parametric?
+                # Defer decoding path paramter to `#select_routes` to avoid double decoding.
                 glob_match.routed_result[segment.parameter] = glob_match.current_segment
               end
 
