@@ -1,3 +1,14 @@
+2021-01-??  v0.4.4 - URI decode path params
+
+Bugfix
+  * URI decodes path params before storing them in the result set's `#params` hash
+
+2020-12-07  v0.4.3 - Crystal 1.0.0 compliance
+
+Changes
+  * Updates crystal version to be installable in Crystal versions greater than 1.0.0
+  * Updates ameba to `0.13.x`
+
 2020-04-27  v0.4.2 - Updates for Crystal 0.34.0
 
 Changes
