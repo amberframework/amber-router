@@ -11,6 +11,6 @@ development_dependencies:
   radix:
     github: luislavena/radix
 
-crystal: '>= 0.35.0'
+crystal: '>= 1.0.0'
 
 license: MIT
